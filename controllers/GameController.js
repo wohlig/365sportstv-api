@@ -12,9 +12,15 @@ router.post(
                 description: { type: "string" },
                 startTime: { type: "string" },
                 streamId: { type: "string" },
-                scoreId: { type: "string" },
+                scoreId: { type: "string" }
             },
-            required: ["name", "description", "startTime", "streamId", "scoreId"]
+            required: [
+                "name",
+                "description",
+                "startTime",
+                "streamId",
+                "scoreId"
+            ]
         }
     }),
     // authenticateAdmin,

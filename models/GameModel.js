@@ -1,4 +1,4 @@
-export default{
+export default {
     //create game
     saveData: async (data) => {
         let obj = new Game(data)
@@ -27,7 +27,7 @@ export default{
             status: { $in: ["enabled", "disabled"] }
         }).exec()
     },
-    
+
     updateData: async (id, data) => {
         let obj = await Game.findOneAndUpdate({ _id: id }, data, {
             new: true

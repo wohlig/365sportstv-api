@@ -1,9 +1,13 @@
-export default{
+export default {
     //create or update favorites
     saveData: async (data) => {
-        let obj = await Favorite.findOneAndUpdate({ userId: data.userId, gameId: data.gameId }, data, {
-            new: true
-        })
+        let obj = await Favorite.findOneAndUpdate(
+            { userId: data.userId, gameId: data.gameId },
+            data,
+            {
+                new: true
+            }
+        )
         return obj
     },
     search: async (body) => {

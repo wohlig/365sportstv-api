@@ -1,15 +1,15 @@
 var schema = new Schema(
     {
-        name: { type: String},
+        name: { type: String },
         description: { type: String },
         startTime: {
             type: Date
         },
         streamId: {
-            type: String,
+            type: String
         },
         scoreId: {
-            type: String,
+            type: String
         },
         status: {
             type: String,
