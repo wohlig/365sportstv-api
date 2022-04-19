@@ -1,5 +1,5 @@
 {
-    "name": "wohlig-framework",
+    "name": "365-sports-tv",
     "version": "1.0.0",
     "description": "Wohlig Framework",
     "main": "app.js",
@@ -30,13 +30,14 @@
         "moment": "^2.29.1",
         "mongoose": "^6.0.8",
         "node-cron": "^3.0.0",
+        "nodemon": "^2.0.15",
         "require-all": "^3.0.0"
     },
     "devDependencies": {
         "dotenv": "^10.0.0",
         "eslint": "^7.32.0",
-        "prettier": "2.5.1",
-        "husky": "^7.0.0"
+        "husky": "^7.0.0",
+        "prettier": "2.5.1"
     },
     "prettier": {
         "trailingComma": "none",

@@ -4,5 +4,3 @@
  * console.log('running a task every minute')
  * });
  */
-
-cron.schedule("0 0 * * SAT", () => {})

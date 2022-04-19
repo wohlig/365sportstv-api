@@ -13,5 +13,4 @@ var schema = new Schema(
         timestamp: true
     }
 )
-schema.index({ name: 1, email: 1 }, { unique: true })
-export default mongoose.model("Person", schema)
+export default mongoose.model("User", schema)
