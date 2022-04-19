@@ -36,9 +36,18 @@ router.post(
         }
     }
 )
-router.post("/search", async (req, res) => {
+router.post("/searchLiveGamesLight", async (req, res) => {
     try {
-        const data = await GameModel.search(req.body)
+        const data = await GameModel.getLiveGamesLight(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
+router.post("/searchUpcomingGamesLight", async (req, res) => {
+    try {
+        const data = await GameModel.getLiveGamesLight(req.body)
         res.json(data)
     } catch (error) {
         console.error(error)

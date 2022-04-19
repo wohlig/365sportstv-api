@@ -8,6 +8,10 @@ export default {
                 new: true
             }
         )
+        if (obj === null){
+            obj = new Favorite(data)
+            await obj.save()
+        }
         return obj
     },
     search: async (body) => {

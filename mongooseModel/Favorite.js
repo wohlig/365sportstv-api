@@ -1,7 +1,7 @@
 var schema = new Schema(
     {
-        game: { type: Schema.Types.ObjectId, ref: "Games" },
-        user: { type: Schema.Types.ObjectId, ref: "User" },
+        gameId: { type: Schema.Types.ObjectId, ref: "Games" },
+        userId: { type: Schema.Types.ObjectId, ref: "User" },
         status: {
             type: String,
             enum: ["enabled", "disabled", "archived"],
