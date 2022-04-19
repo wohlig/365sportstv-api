@@ -8,7 +8,7 @@ export default {
                 new: true
             }
         )
-        if (obj === null){
+        if (obj === null) {
             obj = new Favorite(data)
             await obj.save()
         }

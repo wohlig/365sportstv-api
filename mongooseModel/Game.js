@@ -15,7 +15,7 @@ var schema = new Schema(
             type: String,
             enum: ["enabled", "disabled", "archived"],
             default: "enabled"
-        },
+        }
         // liveStatus: {
         //     type: String,
         //     enum: ["upcoming", "live", "completed"],
