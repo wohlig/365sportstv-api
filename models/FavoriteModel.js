@@ -14,23 +14,85 @@ export default {
         }
         return obj
     },
-    search: async (body) => {
-        const pageNo = body.page
-        const skip = (pageNo - 1) * global.paginationLimit
-        const limit = global.paginationLimit
-        const data = await Favorite.find({
-            userId: body.userId,
-            status: { $in: ["enabled"] }
-        })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Favorite.countDocuments({
-            userId: body.userId,
-            status: { $in: ["enabled"] }
-        }).exec()
-        const maxPage = Math.ceil(count / limit)
-        return { data, count, maxPage }
+    getFavoritesForUser: async (body) => {
+        // const data = await Favorite.find({
+        //     userId: body._id,
+        //     status: { $in: ["enabled"] }
+        // }).populate("gameId")
+        //     .sort({ createdAt: -1 })
+        //     .exec()
+        const data = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["enabled", "disabled"] },
+                    startTime: { $lte: new Date() }
+                }
+            },
+            {
+                $lookup: {
+                    from: "favorites",
+                    as: "favorite",
+                    let: { game_id: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $eq: [
+                                                "$userId",
+                                                mongoose.Types.ObjectId(
+                                                    body._id
+                                                )
+                                            ],
+                                            $eq: ["$gameId", "$$game_id"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $unwind: {
+                    path: "$favorite",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    "favorite.status": { $in: ["enabled"] }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    streamId: 1,
+                    favorite: {
+                        $cond: {
+                            if: { $eq: ["$favorite", null] },
+                            then: false,
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$favorite.status", "enabled"]
+                                    },
+                                    then: true,
+                                    else: false
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    favorite: true
+                }
+            },
+        ])
+        return data
     },
     deleteData: async (gameId) => {
         let obj = await Favorite.findOneAndUpdate(

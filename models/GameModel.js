@@ -19,23 +19,34 @@ export default {
             {
                 $lookup: {
                     from: "favorites",
-                    localField: "_id",
-                    foreignField: "gameId",
-                    let: { keywordId: "$_id" },
+                    as: "favorite",
+                    let: { game_id: "$_id" },
                     pipeline: [
                         {
                             $match: {
-                                userId: mongoose.Types.ObjectId(
-                                    "624de235a7d2d20aadd655c0"
-                                )
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $eq: [
+                                                "$userId",
+                                                mongoose.Types.ObjectId(
+                                                    body.user
+                                                )
+                                            ],
+                                            $eq: ["$gameId", "$$game_id"]
+                                        }
+                                    ]
+                                }
                             }
                         }
-                    ],
-                    as: "favorite"
+                    ]
                 }
             },
             {
-                $unwind: "$favorite"
+                $unwind: {
+                    path: "$favorite",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -60,7 +71,10 @@ export default {
                 }
             }
         ])
-
+            .sort({ startTime: 1 })
+            .skip(skip)
+            .limit(limit)
+            .exec()
         const count = await Game.countDocuments({
             status: { $in: ["enabled", "disabled"] },
             startTime: { $lte: new Date() }
@@ -82,23 +96,34 @@ export default {
             {
                 $lookup: {
                     from: "favorites",
-                    localField: "_id",
-                    foreignField: "gameId",
-                    let: { keywordId: "$_id" },
+                    as: "favorite",
+                    let: { game_id: "$_id" },
                     pipeline: [
                         {
                             $match: {
-                                userId: mongoose.Types.ObjectId(
-                                    "624de235a7d2d20aadd655c0"
-                                )
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $eq: [
+                                                "$userId",
+                                                mongoose.Types.ObjectId(
+                                                    body.user
+                                                )
+                                            ],
+                                            $eq: ["$gameId", "$$game_id"]
+                                        }
+                                    ]
+                                }
                             }
                         }
-                    ],
-                    as: "favorite"
+                    ]
                 }
             },
             {
-                $unwind: "$favorite"
+                $unwind: {
+                    path: "$favorite",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -123,7 +148,10 @@ export default {
                 }
             }
         ])
-
+            .sort({ startTime: 1 })
+            .skip(skip)
+            .limit(limit)
+            .exec()
         const count = await Game.countDocuments({
             status: { $in: ["enabled", "disabled"] },
             startTime: { $lte: new Date() }

@@ -17,6 +17,7 @@ router.post(
             required: ["userId", "gameId", "status"]
         }
     }),
+    authenticateUser,
     async (req, res) => {
         try {
             // const data = await FavoriteModel.saveData(req.body, req.user._id)
@@ -29,21 +30,12 @@ router.post(
         }
     }
 )
-router.post(
-    "/search",
-    ValidateRequest({
-        body: {
-            type: "object",
-            properties: {
-                page: { type: "number" },
-                userId: { type: "string" }
-            },
-            required: ["page", "userId"]
-        }
-    }),
+router.get(
+    "/getFavoritesForUser",
+    authenticateUser,
     async (req, res) => {
         try {
-            const data = await FavoriteModel.search(req.body)
+            const data = await FavoriteModel.getFavoritesForUser(req.user)
             res.json(data)
         } catch (error) {
             console.error(error)

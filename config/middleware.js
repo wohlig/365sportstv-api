@@ -26,3 +26,41 @@ global.authenticateUser = async (req, res, next) => {
         res.status(401).send("Not Authorized")
     }
 }
+global.authenticateAdmin = async (req, res, next) => {
+    if (req && req.headers && req.headers.authorization) {
+        var decoded
+        try {
+            // decoded = await jwtDecode(req.headers.accesstoken)
+            const decoded = jwt.verify(
+                req.headers.authorization,
+                process.env["JWT_KEY"]
+            )
+            req.user = decoded
+            next()
+        } catch (e) {
+            console.error(e)
+            res.status(401).send(e)
+        }
+    } else {
+        res.status(401).send("Not Authorized")
+    }
+}
+global.authenticateSubscribedUser = async (req, res, next) => {
+    if (req && req.headers && req.headers.authorization) {
+        var decoded
+        try {
+            // decoded = await jwtDecode(req.headers.accesstoken)
+            const decoded = jwt.verify(
+                req.headers.authorization,
+                process.env["JWT_KEY"]
+            )
+            req.user = decoded
+            next()
+        } catch (e) {
+            console.error(e)
+            res.status(401).send(e)
+        }
+    } else {
+        res.status(401).send("Not Authorized")
+    }
+}
