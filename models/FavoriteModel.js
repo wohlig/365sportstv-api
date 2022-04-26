@@ -90,7 +90,7 @@ export default {
                 $match: {
                     favorite: true
                 }
-            },
+            }
         ])
         return data
     },

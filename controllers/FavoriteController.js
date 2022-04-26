@@ -30,19 +30,15 @@ router.post(
         }
     }
 )
-router.get(
-    "/getFavoritesForUser",
-    authenticateUser,
-    async (req, res) => {
-        try {
-            const data = await FavoriteModel.getFavoritesForUser(req.user)
-            res.json(data)
-        } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
-        }
+router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
+    try {
+        const data = await FavoriteModel.getFavoritesForUser(req.user)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
     }
-)
+})
 router.delete(
     "/:id",
     ValidateRequest({
