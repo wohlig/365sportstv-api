@@ -55,7 +55,7 @@ router.post("/searchUpcomingGamesLight", async (req, res) => {
     }
 })
 router.get(
-    "/:id",
+    "/getOneMatch/:id",
     ValidateRequest({
         params: {
             type: "object",
@@ -67,9 +67,10 @@ router.get(
             }
         }
     }),
+    authenticateUser,
     async (req, res) => {
         try {
-            const data = await GameModel.getOne(req.params.id)
+            const data = await GameModel.getOne(req.params.id, req.user._id)
             res.json(data)
         } catch (error) {
             console.error(error)
