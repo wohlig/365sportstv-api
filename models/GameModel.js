@@ -231,7 +231,6 @@ export default {
                 }
             }
         ]).exec()
-        console.log(data)
         return data[0]
     },
 
