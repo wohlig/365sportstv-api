@@ -54,6 +54,15 @@ router.post("/searchUpcomingGamesLight", async (req, res) => {
         res.status(500).json(error)
     }
 })
+router.post("/searchPastGames", async (req, res) => {
+    try {
+        const data = await GameModel.getPastGames(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 router.get(
     "/getOneMatch/:id",
     ValidateRequest({

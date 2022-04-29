@@ -12,7 +12,7 @@ export default {
         const data = await Game.aggregate([
             {
                 $match: {
-                    status: { $in: ["enabled", "disabled"] },
+                    status: { $in: ["enabled"] },
                     startTime: { $lte: new Date() }
                 }
             },
@@ -81,7 +81,7 @@ export default {
             .limit(limit)
             .exec()
         const count = await Game.countDocuments({
-            status: { $in: ["enabled", "disabled"] },
+            status: { $in: ["enabled"] },
             startTime: { $lte: new Date() }
         }).exec()
         const maxPage = Math.ceil(count / limit)
@@ -94,7 +94,7 @@ export default {
         const data = await Game.aggregate([
             {
                 $match: {
-                    status: { $in: ["enabled", "disabled"] },
+                    status: { $in: ["enabled"] },
                     startTime: { $gte: new Date() }
                 }
             },
@@ -157,8 +157,39 @@ export default {
             .limit(limit)
             .exec()
         const count = await Game.countDocuments({
-            status: { $in: ["enabled", "disabled"] },
+            status: { $in: ["enabled"] },
             startTime: { $gte: new Date() }
+        }).exec()
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
+    },
+    getPastGames: async (body) => {
+        const pageNo = body.page
+        const skip = (pageNo - 1) * global.paginationLimit
+        const limit = global.paginationLimit
+        const data = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["disabled"] },
+                    startTime: { $lt: new Date() }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    scoreId: 1
+                }
+            }
+        ])
+            .sort({ startTime: -1 })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await Game.countDocuments({
+            status: { $in: ["disabled"] },
+            startTime: { $lt: new Date() }
         }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
@@ -235,9 +266,7 @@ export default {
     },
 
     updateData: async (id, data) => {
-        let obj = await Game.findOneAndUpdate({ _id: id }, data, {
-            new: true
-        })
+        let obj = await Game.findOneAndUpdate({ _id: id }, data)
         return obj
     },
     deleteData: async (id) => {
