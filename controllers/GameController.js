@@ -14,11 +14,7 @@ router.post(
                 streamId: { type: "string" },
                 scoreId: { type: "string" }
             },
-            required: [
-                "name",
-                "description",
-                "startTime",
-            ]
+            required: ["name", "description", "startTime"]
         }
     }),
     // authenticateAdmin,
