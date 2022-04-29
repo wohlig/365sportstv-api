@@ -18,8 +18,6 @@ router.post(
                 "name",
                 "description",
                 "startTime",
-                "streamId",
-                "scoreId"
             ]
         }
     }),
