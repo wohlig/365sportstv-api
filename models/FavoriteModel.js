@@ -24,11 +24,10 @@ export default {
         return obj
     },
     getFavoritesForUser: async (body) => {
-
         const data = await Game.aggregate([
             {
                 $match: {
-                    status: { $in: ["enabled"] },
+                    status: { $in: ["enabled"] }
                 }
             },
             {
