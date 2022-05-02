@@ -1,6 +1,15 @@
 export default {
     //create or update favorites
     saveData: async (data) => {
+        if (data.status === "enabled") {
+            let count = await Favorite.countDocuments({
+                userId: data.userId,
+                status: "enabled"
+            })
+            if (count >= 4) {
+                return "You can't add more than 4 favorites"
+            }
+        }
         let obj = await Favorite.findOneAndUpdate(
             { userId: data.userId, gameId: data.gameId },
             data,
@@ -15,17 +24,11 @@ export default {
         return obj
     },
     getFavoritesForUser: async (body) => {
-        // const data = await Favorite.find({
-        //     userId: body._id,
-        //     status: { $in: ["enabled"] }
-        // }).populate("gameId")
-        //     .sort({ createdAt: -1 })
-        //     .exec()
+
         const data = await Game.aggregate([
             {
                 $match: {
-                    status: { $in: ["enabled", "disabled"] },
-                    startTime: { $lte: new Date() }
+                    status: { $in: ["enabled"] },
                 }
             },
             {
@@ -44,12 +47,6 @@ export default {
                                 $expr: {
                                     $and: [
                                         {
-                                            // $eq: [
-                                            //     "$userId",
-                                            //     mongoose.Types.ObjectId(
-                                            //         body._id
-                                            //     )
-                                            // ],
                                             $eq: ["$gameId", "$$game_id"]
                                         }
                                     ]

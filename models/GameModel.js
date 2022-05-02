@@ -32,12 +32,6 @@ export default {
                                 $expr: {
                                     $and: [
                                         {
-                                            // $eq: [
-                                            //     "$userId",
-                                            //     mongoose.Types.ObjectId(
-                                            //         body.user
-                                            //     )
-                                            // ],
                                             $eq: ["$gameId", "$$game_id"]
                                         }
                                     ]
