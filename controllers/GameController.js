@@ -14,13 +14,7 @@ router.post(
                 streamId: { type: "string" },
                 scoreId: { type: "string" }
             },
-            required: [
-                "name",
-                "description",
-                "startTime",
-                "streamId",
-                "scoreId"
-            ]
+            required: ["name", "description", "startTime"]
         }
     }),
     // authenticateAdmin,
@@ -47,7 +41,16 @@ router.post("/searchLiveGamesLight", async (req, res) => {
 })
 router.post("/searchUpcomingGamesLight", async (req, res) => {
     try {
-        const data = await GameModel.getLiveGamesLight(req.body)
+        const data = await GameModel.getUpcomingGamesLight(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
+router.post("/searchPastGames", async (req, res) => {
+    try {
+        const data = await GameModel.getPastGames(req.body)
         res.json(data)
     } catch (error) {
         console.error(error)
@@ -55,7 +58,7 @@ router.post("/searchUpcomingGamesLight", async (req, res) => {
     }
 })
 router.get(
-    "/:id",
+    "/getOneMatch/:id",
     ValidateRequest({
         params: {
             type: "object",
@@ -67,9 +70,10 @@ router.get(
             }
         }
     }),
+    authenticateUser,
     async (req, res) => {
         try {
-            const data = await GameModel.getOne(req.params.id)
+            const data = await GameModel.getOne(req.params.id, req.user._id)
             res.json(data)
         } catch (error) {
             console.error(error)
