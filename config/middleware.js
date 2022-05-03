@@ -17,6 +17,7 @@ global.authenticateUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
+            console.log(req.user)
             next()
         } catch (e) {
             console.error(e)
@@ -36,7 +37,12 @@ global.authenticateAdmin = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            next()
+            if (req.user.userType === "Admin") {
+                next()
+            }
+            else {
+                res.status(401).send("Not Authorized")
+            }
         } catch (e) {
             console.error(e)
             res.status(401).send(e)

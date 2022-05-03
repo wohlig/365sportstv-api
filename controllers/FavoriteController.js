@@ -41,13 +41,14 @@ router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
 })
 router.delete(
     "/:id",
+    authenticateAdmin,
     ValidateRequest({
-        body: {
+        params: {
             type: "object",
             properties: {
-                gameId: { type: "string" }
+                id: { type: "string", format: "objectId" }
             },
-            required: ["gameId"]
+            required: ["id"]
         }
     }),
     async (req, res) => {
