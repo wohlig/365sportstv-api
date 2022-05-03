@@ -39,8 +39,7 @@ global.authenticateAdmin = async (req, res, next) => {
             req.user = decoded
             if (req.user.userType === "Admin") {
                 next()
-            }
-            else {
+            } else {
                 res.status(401).send("Not Authorized")
             }
         } catch (e) {
