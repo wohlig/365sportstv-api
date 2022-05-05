@@ -17,7 +17,6 @@ global.authenticateUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            console.log(req.user)
             next()
         } catch (e) {
             console.error(e)

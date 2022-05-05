@@ -2,22 +2,25 @@ const router = Router()
 // create plan
 router.post(
     "/create",
-    authenticateAdmin,
+    authenticateUser,
     ValidateRequest({
         body: {
             type: "object",
             properties: {
-                name: { type: "string" },
-                price: { type: "number" },
-                duration: { type: "number" }
+                plan: { type: "string" },
+                amount: { type: "number" },
+                status: {
+                    type: "string",
+                    enum: ["initiated", "completed", "cancelled"],
+                    default: "initiated"
+                }
             },
-            required: ["name", "price", "duration"]
+            required: ["plan", "amount"]
         }
     }),
     async (req, res) => {
         try {
-            // const data = await GameModel.saveData(req.body, req.user._id)
-            const data = await PlanModel.saveData(req.body)
+            const data = await TransactionModel.saveData(req.body, req.user)
             res.json(data)
         } catch (error) {
             console.error(error)
@@ -25,18 +28,9 @@ router.post(
         }
     }
 )
-router.post("/searchPlanForUser", async (req, res) => {
-    try {
-        const data = await PlanModel.search(req.body)
-        res.json(data)
-    } catch (error) {
-        console.error(error)
-        res.status(500).json(error)
-    }
-})
 router.put(
     "/:id",
-    authenticateAdmin,
+    authenticateUser,
     ValidateRequest({
         params: {
             type: "object",
@@ -51,7 +45,10 @@ router.put(
     }),
     async (req, res) => {
         try {
-            const data = await PlanModel.updateData(req.params.id, req.body)
+            const data = await TransactionModel.updateData(
+                req.params.id,
+                req.body
+            )
             res.json(data)
         } catch (error) {
             console.error(error)
