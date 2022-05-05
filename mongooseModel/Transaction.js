@@ -12,7 +12,7 @@ var schema = new Schema(
         paymentGatewayResponse: { type: String },
         amount: { type: Number },
         paymentMode: { type: String },
-        referenceNumber: { type: String },
+        referenceNumber: { type: String }
     },
     {
         timestamp: true
