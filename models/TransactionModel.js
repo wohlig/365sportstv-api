@@ -1,27 +1,28 @@
 import PlanModel from "./PlanModel"
+import SubscriptionModel from "./SubscriptionModel"
 
 export default {
     //create tranasction
     saveData: async (data, user) => {
         const plan = await Plan.findOne({ _id: data.plan })
         if (plan == null) {
-            return "Plan not found"
+            return {data:"Plan not found", value: false}
         }
         if (plan.price !== data.amount) {
-            return "Amount does not match"
+            return {data: "Amount does not match", value: false}
         }
         const userData = await User.findOne({ _id: user._id })
         if (userData == null) {
-            return "User not found"
+            return {data: "User not found", value: false}
         }
         if (userData.planDetails) {
             if (userData.planDetails.planStatus === "active") {
-                return "User already subscribed"
+                return {data: "User already subscribed", value: false}
             }
         }
         if (plan.price == 0) {
             if (userData.freeTrialUsed) {
-                return "User already used free trial"
+                return {data: "User already used free trial", value: false}
             }
             userData.freeTrialUsed = true
             data.status = "completed"
@@ -29,8 +30,12 @@ export default {
         }
         data.user = user._id
         let obj = new Transaction(data)
-        await obj.save()
-        return obj
+        await obj.save().then(async (data) => {
+            if (data.paymentMode === "free") {
+                await SubscriptionModel.saveData(data)
+            }
+        })
+        return {data: obj, value: true}
     },
     updateData: async (id, data) => {
         let obj = await Transaction.findOneAndUpdate({ _id: id }, data)

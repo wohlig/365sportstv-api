@@ -13,7 +13,6 @@ router.post(
                 description: { type: "string" },
                 startTime: {
                     type: "string",
-                    format: "date-time"
                 },
                 streamId: {
                     type: "string"
@@ -77,7 +76,7 @@ router.get(
             }
         }
     }),
-    authenticateUser,
+    verifySubscribedUser,
     async (req, res) => {
         try {
             const data = await GameModel.getOne(req.params.id, req.user._id)
@@ -110,7 +109,6 @@ router.put(
                 description: { type: "string" },
                 startTime: {
                     type: "string",
-                    format: "date-time"
                 },
                 streamId: {
                     type: "string"
