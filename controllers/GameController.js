@@ -12,7 +12,7 @@ router.post(
                 name: { type: "string" },
                 description: { type: "string" },
                 startTime: {
-                    type: "string",
+                    type: "string"
                 },
                 streamId: {
                     type: "string"
@@ -108,7 +108,7 @@ router.put(
                 name: { type: "string" },
                 description: { type: "string" },
                 startTime: {
-                    type: "string",
+                    type: "string"
                 },
                 streamId: {
                     type: "string"
