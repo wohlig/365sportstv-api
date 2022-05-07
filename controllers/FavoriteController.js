@@ -39,6 +39,15 @@ router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
         res.status(500).json(error)
     }
 })
+router.post("/getFavoritesForUserInBackend", async (req, res) => {
+    try {
+        const data = await FavoriteModel.getFavoritesForUserInBackend(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 router.delete(
     "/:id",
     authenticateAdmin,
