@@ -30,7 +30,7 @@ router.post(
         }
     }
 )
-router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
+router.get("/getFavoritesForUser", verifySubscribedUser, async (req, res) => {
     try {
         const data = await FavoriteModel.getFavoritesForUser(req.user)
         res.json(data)
