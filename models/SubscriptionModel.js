@@ -33,7 +33,8 @@ export default {
         const limit = global.paginationLimit
         const data = await Subscription.find({
             user: user._id
-        }).populate("transactionId")
+        })
+            .populate("transactionId")
             .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)

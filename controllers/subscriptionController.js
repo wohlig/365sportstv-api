@@ -13,7 +13,10 @@ router.post(
     }),
     async (req, res) => {
         try {
-            const data = await SubscriptionModel.searchForUser(req.body, req.user)
+            const data = await SubscriptionModel.searchForUser(
+                req.body,
+                req.user
+            )
             res.json(data)
         } catch (error) {
             console.error(error)
