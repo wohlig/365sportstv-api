@@ -18,7 +18,7 @@ var schema = new Schema(
         }
     },
     {
-        timestamp: true
+        timestamps: true
     }
 )
 export default mongoose.model("Game", schema)

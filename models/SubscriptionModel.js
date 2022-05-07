@@ -13,7 +13,7 @@ export default {
         subobj.planName = plan.name
         subobj.planPrice = plan.price
         subobj.planDuration = plan.duration
-        subobj.transactionId = data.transactionId
+        subobj.transactionId = data._id
         subobj.planStatus = "active"
         subobj.startDate = new Date()
         subobj.endDate = new Date(
@@ -26,5 +26,22 @@ export default {
         let saveobj = new Subscription(subobj)
         await saveobj.save()
         return saveobj
+    },
+    searchForUser: async (body, user) => {
+        const pageNo = body.page
+        const skip = (pageNo - 1) * global.paginationLimit
+        const limit = global.paginationLimit
+        const data = await Subscription.find({
+            user: user._id
+        }).populate("transactionId")
+            .sort({ createdAt: 1 })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await Subscription.countDocuments({
+            user: user._id
+        }).exec()
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
     }
 }

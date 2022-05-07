@@ -16,7 +16,7 @@ var schema = new Schema(
         transactionId: { type: Schema.Types.ObjectId, ref: "Transaction" }
     },
     {
-        timestamp: true
+        timestamps: true
     }
 )
 export default mongoose.model("Subscription", schema)

@@ -40,5 +40,15 @@ export default {
     updateData: async (id, data) => {
         let obj = await Transaction.findOneAndUpdate({ _id: id }, data)
         return obj
+    },
+    getOne: async (id) => {
+        let obj = await Transaction.findOne(
+            {
+                _id: id,
+                status: "completed"
+            },
+            { _id: 1, plan: 1 }
+        ).populate("plan", "name")
+        return obj
     }
 }

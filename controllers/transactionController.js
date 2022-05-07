@@ -32,6 +32,31 @@ router.post(
         }
     }
 )
+router.get(
+    "/:id",
+    authenticateUser,
+    ValidateRequest({
+        params: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    format: "objectId"
+                }
+            },
+            required: ["id"]
+        }
+    }),
+    async (req, res) => {
+        try {
+            const data = await TransactionModel.getOne(req.params.id)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 router.put(
     "/:id",
     authenticateUser,

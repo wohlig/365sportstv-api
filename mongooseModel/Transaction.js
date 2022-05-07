@@ -15,7 +15,7 @@ var schema = new Schema(
         referenceNumber: { type: String }
     },
     {
-        timestamp: true
+        timestamps: true
     }
 )
 export default mongoose.model("Transaction", schema)

@@ -1,4 +1,26 @@
 const router = Router()
+router.post(
+    "/searchForUser",
+    authenticateUser,
+    ValidateRequest({
+        body: {
+            type: "object",
+            properties: {
+                page: { type: "number" }
+            },
+            required: ["page"]
+        }
+    }),
+    async (req, res) => {
+        try {
+            const data = await SubscriptionModel.searchForUser(req.body, req.user)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 // router.post(
 //     "/create",
 //     authenticateUser,
