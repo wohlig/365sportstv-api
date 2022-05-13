@@ -6,7 +6,7 @@ import Subscription from "../mongooseModel/Subscription"
  * console.log('running a task every minute')
  * });
  */
-if(process.env.cron) {
+if (process.env.cron) {
     cron.schedule("0 0 * * *", async () => {
         console.log("running a task every day at midnight")
         const data = await Subscription.find({

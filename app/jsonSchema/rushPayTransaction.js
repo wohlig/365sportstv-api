@@ -8,6 +8,6 @@ module.exports = {
             required: true,
             minimum: 500,
             maximum: 5000000
-        },
+        }
     }
 }

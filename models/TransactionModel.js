@@ -36,9 +36,7 @@ export default {
                 }
             })
             return { data: obj, value: true }
-        }
-        else {
-            
+        } else {
         }
     },
     updateData: async (id, data) => {
