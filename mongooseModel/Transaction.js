@@ -2,20 +2,22 @@ var schema = new Schema(
     {
         user: { type: Schema.Types.ObjectId, ref: "User" },
         plan: { type: Schema.Types.ObjectId, ref: "Plan" },
-        transactionId: { type: String },
+        amount: { type: Number },
+        instamojo_purpose: { type: String },
         status: {
             type: String,
-            enum: ["initiated", "completed", "cancelled"],
-            default: "initiated"
+            enum: ["pending", "completed", "cancelled"],
+            default: "pending"
         },
-        paymentGateway: { type: String },
-        paymentGatewayResponse: { type: String },
-        amount: { type: Number },
-        paymentMode: { type: String },
-        referenceNumber: { type: String }
+        currency: { type: Schema.Types.ObjectId },
+        transactionType: { type: String, enum: ["deposit", "free"] },
+        transactionWay: { type: String },
+        paymentGatewayName: { type: String },
+        paymentGatewayResponse: { type: String }
     },
     {
         timestamps: true
     }
 )
 export default mongoose.model("Transaction", schema)
+

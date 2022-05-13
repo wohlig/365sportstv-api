@@ -44,5 +44,9 @@ export default {
         }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
+    },
+    updateData: async (id, data) => {
+        let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
+        return obj
     }
 }

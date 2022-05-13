@@ -27,15 +27,19 @@ export default {
             userData.freeTrialUsed = true
             data.status = "completed"
             await User.findOneAndUpdate({ _id: user._id }, userData)
+            data.user = user._id
+            data.transactionType = "free"
+            let obj = new Transaction(data)
+            await obj.save().then(async (data) => {
+                if (data.paymentMode === "free") {
+                    await SubscriptionModel.saveData(data)
+                }
+            })
+            return { data: obj, value: true }
         }
-        data.user = user._id
-        let obj = new Transaction(data)
-        await obj.save().then(async (data) => {
-            if (data.paymentMode === "free") {
-                await SubscriptionModel.saveData(data)
-            }
-        })
-        return { data: obj, value: true }
+        else {
+            
+        }
     },
     updateData: async (id, data) => {
         let obj = await Transaction.findOneAndUpdate({ _id: id }, data)

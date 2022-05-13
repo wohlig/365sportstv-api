@@ -110,4 +110,8 @@ router.delete(
         }
     }
 )
+router.post(
+    "/v2/paymentstatus/rushpay",
+    require("../app/api/rushPayService").initiatePayment
+)
 export default router
