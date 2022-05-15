@@ -13,7 +13,7 @@ var schema = new Schema(
         transactionType: { type: String, enum: ["deposit", "free"] },
         transactionWay: { type: String },
         paymentGatewayName: { type: String },
-        paymentGatewayResponse: { type: String }
+        paymentGatewayResponse: { type: Object },
     },
     {
         timestamps: true

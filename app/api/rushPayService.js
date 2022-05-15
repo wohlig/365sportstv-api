@@ -1,11 +1,9 @@
 import constant from "../../config/const"
 import httprequest from "../../common/httpService.js"
 import generateID from "../../common/getId"
-// const errorStore = require("../errorStore/rushPayTransactionErrorStore")
-// const jsonschema = require("../jsonSchema/rushPayTransaction")
-// import crmTransaction from "../api/pushCrm"
-// import transactionNotificationService from "../api/transactionNotificationService"
-
+import Plan from "../../mongooseModel/plan.js"
+import User from "../../mongooseModel/User.js"
+import SubscriptionModel from "../../models/SubscriptionModel.js"
 class RushPay {
     callApi(httpMethod, url, body, headers) {
         let deferred = q.defer()
@@ -55,6 +53,7 @@ class RushPay {
 
     createTransaction(data) {
         let deferred = q.defer()
+
         try {
             let GenericID = generateID.getId()
             let orderId = GenericID.substring(0, GenericID.length - 3)
@@ -92,7 +91,8 @@ class RushPay {
         return deferred.promise
     }
     async initiatePayment(req, res) {
-        const data = req.body
+        let data = req.body
+        data.userId = req.user._id
         const plan = await Plan.findOne({ _id: data.plan })
         if (plan == null) {
             res.status(400).send({
@@ -112,7 +112,7 @@ class RushPay {
                 }
             })
         }
-        const userData = await User.findOne({ _id: user._id })
+        const userData = await User.findOne({ _id: data.userId })
         if (userData == null) {
             res.status(400).send({
                 status: 400,
@@ -145,20 +145,20 @@ class RushPay {
             }
             userData.freeTrialUsed = true
             data.status = "completed"
-            await User.findOneAndUpdate({ _id: user._id }, userData)
-            data.user = user._id
+            console.log("free trial", userData)
+            await User.findOneAndUpdate({ _id: data.userId }, userData)
+            data.user = data.userId
             data.transactionType = "free"
             let obj = new Transaction(data)
             await obj.save().then(async (data) => {
                 await SubscriptionModel.saveData(data)
             })
-            data = obj
-            res.status(200).json(data)
+            res.status(200).json(obj)
         } else {
             try {
                 let RP = new RushPay()
                 let reqData = {}
-                data = req.body
+                let data = req.body
                 data.userId = req.user._id
                 reqData = data
                 RP.createTransaction(reqData)
@@ -209,6 +209,71 @@ class RushPay {
             }
         }
     }
+    paymentStatusCron(order_id) {
+        console.log("getting call by rush cron  ", order_id)
+        let deferred = q.defer()
+        if (order_id) {
+            let tranid = order_id
+            try {
+                let RP = new RushPay()
+                let tran = {}
+                let tranSave = {
+                    order_id: tranid,
+                    me_id: constant.rushMID
+                }
+                RP.findTransactionCheck(tranid)
+                    .then((goahead) => {
+                        return RP.checkPaymentStatus(tranSave)
+                    })
+                    .then((responseData) => {
+                        let modRes = responseData
+                        modRes.instamojo_purpose = tranid
+                        console.log(modRes)
+                        return RP.updateTransactionStatus(modRes)
+                    })
+                    .then((updatedtranid) => {
+                        console.log(updatedtranid)
+                        return RP.findTransaction(updatedtranid)
+                    })
+                    .then((tranToUpload) => {
+                        tran = tranToUpload
+                        return SubscriptionModel.saveData(tran)
+                    })
+                    .catch((error) => {
+                        deferred.reject(error)
+                    })
+            } catch (error) {
+                deferred.reject(error)
+            }
+        } else {
+            deferred.reject("No id found")
+        }
+
+        return deferred.promise
+    }
+    findTransactionCheck(instamojo_purpose) {
+        let deferred = q.defer()
+        try {
+            Transaction.findOne({
+                instamojo_purpose: instamojo_purpose,
+                transactionType: "deposit"
+            }).then((transactionToSave) => {
+                console.log("check -->", transactionToSave)
+                if (
+                    transactionToSave &&
+                    !_.isEmpty(transactionToSave) &&
+                    transactionToSave.status != "completed"
+                ) {
+                    deferred.resolve(transactionToSave)
+                } else {
+                    deferred.reject("Tran already completed !!!")
+                }
+            })
+        } catch (error) {
+            deferred.reject(error)
+        }
+        return deferred.promise
+    }
     checkPaymentStatus(details) {
         let deferred = q.defer()
         try {
@@ -255,13 +320,11 @@ class RushPay {
                               amount: Math.floor(
                                   data.txn_amount - data.txn_amount * 0
                               ),
-                              paymentGatewayResponse: data,
-                              approvedByName: "From Payment Gateway"
+                              paymentGatewayResponse: data
                           }
                         : {
                               status: status,
-                              paymentGatewayResponse: data,
-                              approvedByName: "From Payment Gateway"
+                              paymentGatewayResponse: data
                           }
 
                 Transaction.updateOne(
@@ -273,50 +336,7 @@ class RushPay {
                         $set: dataToUpdate
                     }
                 )
-                    .then(async (result) => {
-                        if (result && result.nModified == 1) {
-                            try {
-                                const transaction = await Transaction.findOne({
-                                    instamojo_purpose: data.instamojo_purpose,
-                                    transactionType: "deposit"
-                                })
-                                if (!_.isEmpty(transaction)) {
-                                    if (transaction.status === "cancel") {
-                                        try {
-                                            transactionNotificationService.notifyFailedTransactions(
-                                                transaction.user,
-                                                transaction.transactionType
-                                            )
-                                        } catch (error) {
-                                            console.log(
-                                                "error while notifying about failed deposit transaction : ",
-                                                error
-                                            )
-                                        }
-                                    }
-                                    crmTransaction.pushCRM(transaction)
-                                }
-                            } catch (error) {
-                                console.log(
-                                    "Error occured while pushing rush payment by redirect url on crm",
-                                    error
-                                )
-                            }
-                            deferred.resolve(transid)
-                        } else {
-                            deferred.reject({
-                                data: "Fail To Update, Please Try Again !!!",
-                                err: {}
-                            })
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                        deferred.reject({
-                            data: "Fail To Update, Please Try Again !!!",
-                            err: err
-                        })
-                    })
+                deferred.resolve(transid)
             } else {
                 deferred.reject("invalid data")
             }
@@ -343,186 +363,6 @@ class RushPay {
         } catch (error) {
             deferred.reject(error)
         }
-        return deferred.promise
-    }
-    findTransactionCheck(instamojo_purpose) {
-        let deferred = q.defer()
-        try {
-            Transaction.findOne({
-                instamojo_purpose: instamojo_purpose,
-                transactionType: "deposit"
-            }).then((transactionToSave) => {
-                console.log("check -->", transactionToSave)
-                if (
-                    transactionToSave &&
-                    !_.isEmpty(transactionToSave) &&
-                    transactionToSave.status != "completed"
-                ) {
-                    deferred.resolve(transactionToSave)
-                } else {
-                    deferred.reject("Tran already completed !!!")
-                }
-            })
-        } catch (error) {
-            deferred.reject(error)
-        }
-        return deferred.promise
-    }
-    UpdatePlay(transactionToSave) {
-        let deferred = q.defer()
-        try {
-            transactionToSave.isBonus = false
-            transactionToSave.isReferral = false
-            TransactionModel.addUsersPlayExchAmount(transactionToSave)
-                .then((responsePlay) => {
-                    try {
-                        var socketDataToSend = {
-                            socketName: `changeTransactionStatusFromAdmin-${transactionToSave.user}`,
-                            data: transactionToSave
-                        }
-                        var optionsForSocket = {
-                            method: "post",
-                            uri: `${fairplaySocketUrl}/callSocket`,
-                            json: true,
-                            body: socketDataToSend
-                        }
-
-                        rp(optionsForSocket)
-                    } catch (err) {}
-                    deferred.resolve(responsePlay)
-                })
-                .catch((err) => {
-                    deferred.reject(err)
-                })
-        } catch (error) {
-            deferred.reject(error)
-        }
-        return deferred.promise
-    }
-    async doOtherThingsForDeposit(transactionToSave) {
-        try {
-            await PaymentGatewayModel.checkForReferralBonus(transactionToSave)
-            await TelegramModel.telegramWalletPaymentGatewayDeposit(
-                transactionToSave
-            )
-            //one signal
-            // var userMessage = `Payment Gateway transaction of INR ${transactionToSave.amount} completed.`
-            // await UserModel.sendNotificationToUser({
-            //     message: userMessage,
-            //     deviceId: user.deviceId,
-            //     user
-            // })
-            transactionToSave.firstPg990Transaction = true
-            // transactionToSave.amount = transactionToSave.amount
-            const firstDepositRes =
-                await TransactionModel.checkForFirstDepositBonus(
-                    transactionToSave
-                )
-            await TransactionModel.fixedTimeSlotBonus(
-                transactionToSave,
-                firstDepositRes
-            )
-        } catch (err) {
-            throw new Error(err)
-        }
-    }
-    paymentStatus(req, res) {
-        console.log("getting call by callback  ", req.body)
-        console.log(req.body)
-        if (req.body && req.body.Status && req.body.order_id) {
-            let tranid = req.body.order_id
-            try {
-                let RP = new RushPay()
-                let tran = {}
-                let tranSave = {
-                    order_id: tranid,
-                    me_id: constant.rushMID
-                }
-                RP.findTransactionCheck(tranid)
-                    .then((goahead) => {
-                        return RP.checkPaymentStatus(tranSave)
-                    })
-                    .then((responseData) => {
-                        let modRes = responseData
-                        modRes.instamojo_purpose = tranid
-                        console.log(modRes)
-                        return RP.updateTransactionStatus(modRes)
-                    })
-                    .then((updatedtranid) => {
-                        console.log(updatedtranid)
-                        return RP.findTransaction(updatedtranid)
-                    })
-                    .then((tranToUpload) => {
-                        console.log(tranToUpload)
-                        tran = tranToUpload
-                        return RP.UpdatePlay(tranToUpload)
-                    })
-                    .then((response) => {
-                        RP.doOtherThingsForDeposit(tran)
-                        console.log(response)
-                        res.writeHead(301, { Location: constant.thankyoupage })
-                        res.end()
-                    })
-                    .catch((error) => {
-                        console.log("Rush Error ", error)
-                        res.writeHead(301, { Location: constant.thankyoupage })
-                        res.end()
-                    })
-            } catch (error) {
-                console.log("Rush Error ", error)
-                res.writeHead(301, { Location: constant.thankyoupage })
-                res.end()
-            }
-        } else {
-            res.writeHead(301, { Location: constant.thankyoupage })
-            res.end()
-        }
-    }
-    paymentStatusCron(order_id) {
-        console.log("getting call by rush cron  ", order_id)
-        let deferred = q.defer()
-        if (order_id) {
-            let tranid = order_id
-            try {
-                let RP = new RushPay()
-                let tran = {}
-                let tranSave = {
-                    order_id: tranid,
-                    me_id: constant.rushMID
-                }
-                RP.findTransactionCheck(tranid)
-                    .then((goahead) => {
-                        return RP.checkPaymentStatus(tranSave)
-                    })
-                    .then((responseData) => {
-                        let modRes = responseData
-                        modRes.instamojo_purpose = tranid
-                        console.log(modRes)
-                        return RP.updateTransactionStatus(modRes)
-                    })
-                    .then((updatedtranid) => {
-                        console.log(updatedtranid)
-                        return RP.findTransaction(updatedtranid)
-                    })
-                    .then((tranToUpload) => {
-                        console.log(tranToUpload)
-                        tran = tranToUpload
-                        return RP.UpdatePlay(tranToUpload)
-                    })
-                    .then((response) => {
-                        RP.doOtherThingsForDeposit(tran)
-                        deferred.resolve(response)
-                    })
-                    .catch((error) => {
-                        deferred.reject(error)
-                    })
-            } catch (error) {
-                deferred.reject(error)
-            }
-        } else {
-            deferred.reject("No id found")
-        }
-
         return deferred.promise
     }
 }

@@ -1,37 +1,37 @@
 const router = Router()
 // create plan
-router.post(
-    "/create",
-    authenticateUser,
-    ValidateRequest({
-        body: {
-            type: "object",
-            properties: {
-                plan: { type: "string" },
-                amount: { type: "number" },
-                status: {
-                    type: "string",
-                    enum: ["initiated", "completed", "cancelled"],
-                    default: "initiated"
-                }
-            },
-            required: ["plan", "amount"]
-        }
-    }),
-    async (req, res) => {
-        try {
-            const data = await TransactionModel.saveData(req.body, req.user)
-            if (data.value) {
-                res.status(200).json(data.data)
-            } else {
-                res.status(500).json(data.data)
-            }
-        } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
-        }
-    }
-)
+// router.post(
+//     "/create",
+//     authenticateUser,
+//     ValidateRequest({
+//         body: {
+//             type: "object",
+//             properties: {
+//                 plan: { type: "string" },
+//                 amount: { type: "number" },
+//                 status: {
+//                     type: "string",
+//                     enum: ["initiated", "completed", "cancelled"],
+//                     default: "initiated"
+//                 }
+//             },
+//             required: ["plan", "amount"]
+//         }
+//     }),
+//     async (req, res) => {
+//         try {
+//             const data = await TransactionModel.saveData(req.body, req.user)
+//             if (data.value) {
+//                 res.status(200).json(data.data)
+//             } else {
+//                 res.status(500).json(data.data)
+//             }
+//         } catch (error) {
+//             console.error(error)
+//             res.status(500).json(error)
+//         }
+//     }
+// )
 router.get(
     "/:id",
     authenticateUser,
@@ -111,7 +111,8 @@ router.delete(
     }
 )
 router.post(
-    "/v2/paymentstatus/rushpay",
+    "/create",
+    authenticateUser,
     require("../app/api/rushPayService").initiatePayment
 )
 export default router

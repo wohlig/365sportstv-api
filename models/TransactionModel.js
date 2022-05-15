@@ -26,6 +26,7 @@ export default {
             }
             userData.freeTrialUsed = true
             data.status = "completed"
+            console.log("free trial", userData)
             await User.findOneAndUpdate({ _id: user._id }, userData)
             data.user = user._id
             data.transactionType = "free"

@@ -1,4 +1,5 @@
 import Subscription from "../mongooseModel/Subscription"
+const rush = require("../app/cron/rushProcessing")
 
 /**
  * Add Cron Here. Refer https://www.npmjs.com/package/node-cron
@@ -25,24 +26,16 @@ if (process.env.cron) {
             })
         }
     })
-    if (process.env.pgname == "rush") {
-        // cron.schedule("*/20 * * * *", async () => {
-        //     console.log("autoRushWithdraw process")
-        //     try {
-        //         autoRushWithdraw.process()
-        //     } catch (err) {}
-        // })
-        cron.schedule("*/5 * * * *", async () => {
-            console.log("rush process")
-            try {
-                rush.process()
-            } catch (err) {}
-        })
-        cron.schedule("*/20 * * * *", async () => {
-            console.log("issue wale transaction")
-            try {
-                rush.processTransactions()
-            } catch (err) {}
-        })
-    }
+    cron.schedule("*/5 * * * *", async () => {
+        console.log("rush process")
+        try {
+            rush.process()
+        } catch (err) {}
+    })
+    // cron.schedule("*/20 * * * *", async () => {
+    //     console.log("issue wale transaction")
+    //     try {
+    //         rush.processTransactions()
+    //     } catch (err) {}
+    // })
 }
