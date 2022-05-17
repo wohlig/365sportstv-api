@@ -272,5 +272,49 @@ export default {
             }
         )
         return obj
+    },
+    searchAllGamesForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["startTime"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const data = await Game.find({
+            name: { $regex: body.searchFilter, $options: "i" },
+            status: { $in: ["enabled", "disabled"] },
+        })
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await User.countDocuments({
+            name: { $regex: body.searchFilter, $options: "i" },
+            status: { $in: ["enabled", "disabled"] },
+        }).exec()
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
+    },
+    getOneGameForAdmin: async (id) => {
+        return await Game.findOne({
+            _id: id,
+        }).exec()
+    },
+    updateOneGameForAdmin: async (id, data) => {
+        let obj = await Game.findOneAndUpdate({ _id: id }, data)
+        return obj
     }
 }
