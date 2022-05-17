@@ -30,7 +30,7 @@ router.post(
         }
     }
 )
-router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
+router.get("/getFavoritesForUser", verifySubscribedUser, async (req, res) => {
     try {
         const data = await FavoriteModel.getFavoritesForUser(req.user)
         res.json(data)
@@ -39,15 +39,25 @@ router.get("/getFavoritesForUser", authenticateUser, async (req, res) => {
         res.status(500).json(error)
     }
 })
+router.post("/getFavoritesForUserInBackend", async (req, res) => {
+    try {
+        const data = await FavoriteModel.getFavoritesForUserInBackend(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 router.delete(
     "/:id",
+    authenticateAdmin,
     ValidateRequest({
-        body: {
+        params: {
             type: "object",
             properties: {
-                gameId: { type: "string" }
+                id: { type: "string", format: "objectId" }
             },
-            required: ["gameId"]
+            required: ["id"]
         }
     }),
     async (req, res) => {

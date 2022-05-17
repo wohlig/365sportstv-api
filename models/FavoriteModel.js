@@ -95,6 +95,174 @@ export default {
         ])
         return data
     },
+    getFavoritesForUserInBackend: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["updatedAt"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        var startDate = new Date(body.startDate)
+        var endDate = new Date(body.endDate)
+        endDate.setDate(endDate.getDate() + 1)
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const data = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["enabled", "disabled"] }
+                }
+            },
+            {
+                $lookup: {
+                    from: "favorites",
+                    as: "favorite",
+                    let: { game_id: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                userId: mongoose.Types.ObjectId(body._id)
+                            }
+                        },
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $eq: ["$gameId", "$$game_id"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $unwind: {
+                    path: "$favorite",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    "favorite.status": { $in: ["enabled", "archived"] }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    streamId: 1,
+                    favorite: {
+                        $cond: {
+                            if: { $eq: ["$favorite", null] },
+                            then: false,
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$favorite.status", "enabled"]
+                                    },
+                                    then: true,
+                                    else: false
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    favorite: true
+                }
+            }
+        ])
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["enabled", "disabled"] }
+                }
+            },
+            {
+                $lookup: {
+                    from: "favorites",
+                    as: "favorite",
+                    let: { game_id: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                userId: mongoose.Types.ObjectId(body._id)
+                            }
+                        },
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {
+                                            $eq: ["$gameId", "$$game_id"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $unwind: {
+                    path: "$favorite",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    "favorite.status": { $in: ["enabled", "archived"] }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    streamId: 1,
+                    favorite: {
+                        $cond: {
+                            if: { $eq: ["$favorite", null] },
+                            then: false,
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$favorite.status", "enabled"]
+                                    },
+                                    then: true,
+                                    else: false
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    favorite: true
+                }
+            }
+        ])
+        const maxPage = Math.ceil(count.length / limit)
+        return { data, count, maxPage }
+    },
     deleteData: async (gameId) => {
         let obj = await Favorite.findOneAndUpdate(
             { gameId: gameId },

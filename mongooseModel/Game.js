@@ -16,14 +16,9 @@ var schema = new Schema(
             enum: ["enabled", "disabled", "archived"],
             default: "enabled"
         }
-        // liveStatus: {
-        //     type: String,
-        //     enum: ["upcoming", "live", "completed"],
-        //     default: "upcoming"
-        // }
     },
     {
-        timestamp: true
+        timestamps: true
     }
 )
 export default mongoose.model("Game", schema)

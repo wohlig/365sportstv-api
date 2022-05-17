@@ -36,7 +36,11 @@ global.authenticateAdmin = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            next()
+            if (req.user.userType === "Admin") {
+                next()
+            } else {
+                res.status(401).send("Not Authorized")
+            }
         } catch (e) {
             console.error(e)
             res.status(401).send(e)
@@ -45,7 +49,7 @@ global.authenticateAdmin = async (req, res, next) => {
         res.status(401).send("Not Authorized")
     }
 }
-global.authenticateSubscribedUser = async (req, res, next) => {
+global.verifySubscribedUser = async (req, res, next) => {
     if (req && req.headers && req.headers.authorization) {
         var decoded
         try {
@@ -55,7 +59,18 @@ global.authenticateSubscribedUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            next()
+            const userData = await User.findOne({
+                _id: req.user._id
+            })
+            if (
+                userData &&
+                userData.planDetails &&
+                userData.planDetails.planStatus === "active"
+            ) {
+                next()
+            } else {
+                res.status(404).send("Not Subscribed")
+            }
         } catch (e) {
             console.error(e)
             res.status(401).send(e)

@@ -4,25 +4,31 @@ const router = Router()
 // create game
 router.post(
     "/create",
+    authenticateAdmin,
     ValidateRequest({
         body: {
             type: "object",
             properties: {
                 name: { type: "string" },
                 description: { type: "string" },
-                startTime: { type: "string" },
-                streamId: { type: "string" },
-                scoreId: { type: "string" }
+                startTime: {
+                    type: "string"
+                },
+                streamId: {
+                    type: "string"
+                },
+                scoreId: {
+                    type: "string"
+                }
             },
             required: ["name", "description", "startTime"]
         }
     }),
-    // authenticateAdmin,
+
     async (req, res) => {
         try {
             // const data = await GameModel.saveData(req.body, req.user._id)
             const data = await GameModel.saveData(req.body)
-
             res.json(data)
         } catch (error) {
             console.error(error)
@@ -70,7 +76,7 @@ router.get(
             }
         }
     }),
-    authenticateUser,
+    verifySubscribedUser,
     async (req, res) => {
         try {
             const data = await GameModel.getOne(req.params.id, req.user._id)
@@ -82,22 +88,74 @@ router.get(
     }
 )
 
-router.put("/:id", async (req, res) => {
-    try {
-        const data = await GameModel.updateData(req.params.id, req.body)
-        res.json(data)
-    } catch (error) {
-        console.error(error)
-        res.status(500).json(error)
+router.put(
+    "/:id",
+    authenticateAdmin,
+    ValidateRequest({
+        params: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    format: "objectId"
+                }
+            },
+            required: ["id"]
+        },
+        body: {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                description: { type: "string" },
+                startTime: {
+                    type: "string"
+                },
+                streamId: {
+                    type: "string"
+                },
+                scoreId: {
+                    type: "string"
+                },
+                status: {
+                    type: "string"
+                }
+            }
+        }
+    }),
+    async (req, res) => {
+        try {
+            const data = await GameModel.updateData(req.params.id, req.body)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
     }
-})
-router.delete("/:id", async (req, res) => {
-    try {
-        const data = await GameModel.deleteData(req.params.id)
-        res.json(data)
-    } catch (error) {
-        console.error(error)
-        res.status(500).json(error)
+)
+router.delete(
+    "/:id",
+    authenticateAdmin,
+    ValidateRequest({
+        params: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    format: "objectId"
+                }
+            },
+            required: ["id"]
+        }
+    }),
+
+    async (req, res) => {
+        try {
+            const data = await GameModel.deleteData(req.params.id)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
     }
-})
+)
 export default router
