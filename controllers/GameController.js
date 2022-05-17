@@ -158,7 +158,7 @@ router.delete(
         }
     }
 )
-router.post("/searchAllGamesForAdmin", authenticateAdmin ,async (req, res) => {
+router.post("/searchAllGamesForAdmin", authenticateAdmin, async (req, res) => {
     try {
         const data = await GameModel.getAllGamesForAdmin(req.body)
         res.json(data)
@@ -167,7 +167,7 @@ router.post("/searchAllGamesForAdmin", authenticateAdmin ,async (req, res) => {
         res.status(500).json(error)
     }
 })
-router.get("/getOneGameForAdmin/:id", authenticateAdmin ,async (req, res) => {
+router.get("/getOneGameForAdmin/:id", authenticateAdmin, async (req, res) => {
     try {
         const data = await GameModel.getOneGameForAdmin(req.params.id)
         res.json(data)
@@ -176,13 +176,20 @@ router.get("/getOneGameForAdmin/:id", authenticateAdmin ,async (req, res) => {
         res.status(500).json(error)
     }
 })
-router.put("/updateOneGameForAdmin/:id", authenticateAdmin ,async (req, res) => {
-    try {
-        const data = await GameModel.updateOneGameForAdmin(req.params.id, req.body)
-        res.json(data)
-    } catch (error) {
-        console.error(error)
-        res.status(500).json(error)
+router.put(
+    "/updateOneGameForAdmin/:id",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data = await GameModel.updateOneGameForAdmin(
+                req.params.id,
+                req.body
+            )
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
     }
-})
+)
 export default router

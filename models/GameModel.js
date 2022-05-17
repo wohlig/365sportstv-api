@@ -295,7 +295,7 @@ export default {
         const limit = body.itemsPerPage
         const data = await Game.find({
             name: { $regex: body.searchFilter, $options: "i" },
-            status: { $in: ["enabled", "disabled"] },
+            status: { $in: ["enabled", "disabled"] }
         })
             .sort(sort)
             .skip(skip)
@@ -303,14 +303,14 @@ export default {
             .exec()
         const count = await User.countDocuments({
             name: { $regex: body.searchFilter, $options: "i" },
-            status: { $in: ["enabled", "disabled"] },
+            status: { $in: ["enabled", "disabled"] }
         }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
     getOneGameForAdmin: async (id) => {
         return await Game.findOne({
-            _id: id,
+            _id: id
         }).exec()
     },
     updateOneGameForAdmin: async (id, data) => {
