@@ -130,4 +130,13 @@ router.post(
         }
     }
 )
+router.get("/getTotalDepositsForAdmin", authenticateAdmin, async (req, res) => {
+    try {
+        const data = await TransactionModel.getTotalDepositsForAdmin()
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 export default router

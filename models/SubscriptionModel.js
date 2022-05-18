@@ -48,7 +48,42 @@ export default {
     updateData: async (id, data) => {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
-    }
+    },
+    getTotalSubscribedUsersForAdmin: async (body) => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: { $nin: [0] },
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user",
+                    },
+                }
+            }
+        ])
+        return data.length
+    },
+    getTotalActiveSubscribedUsersForAdmin: async (body) => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: { $nin: [0] },
+                    planStatus: "active",
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user",
+                    },
+                }
+            }
+        ])
+        return data.count
+    },
     // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
     //     let _ = require("lodash")
     //     if (_.isEmpty(body.sortBy)) {

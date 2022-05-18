@@ -24,6 +24,32 @@ router.post(
         }
     }
 )
+router.get(
+    "/getTotalSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data = await SubscriptionModel.getTotalSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
+    "/getTotalActiveSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data = await SubscriptionModel.getTotalActiveSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 // router.post(
 //     "/create",
 //     authenticateUser,

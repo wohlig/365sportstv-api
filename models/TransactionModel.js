@@ -138,5 +138,12 @@ export default {
         count = count.length
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
+    },
+    getTotalDepositsForAdmin: async () => {
+        const data = await Transaction.countDocuments({
+            status: "completed",
+            transactionType: "deposit"
+        })
+        return data
     }
 }
