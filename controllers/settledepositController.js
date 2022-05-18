@@ -7,7 +7,6 @@ router.post(
         body: {
             type: "object",
             properties: {
-                logs: { type: "string" },
                 amount: { type: "number" }
             },
             required: ["amount"]
@@ -15,8 +14,7 @@ router.post(
     }),
     async (req, res) => {
         try {
-            // const data = await GameModel.saveData(req.body, req.user._id)
-            const data = await SettleDepositsModel.saveData(req.body)
+            const data = await SettledepositModel.saveData(req.body)
             res.json(data)
         } catch (error) {
             console.error(error)
@@ -24,5 +22,13 @@ router.post(
         }
     }
 )
-
+router.post("/search", authenticateAdmin, async (req, res) => {
+    try {
+        const data = await SettledepositModel.search(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 export default router

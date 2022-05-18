@@ -79,8 +79,8 @@ export default {
         var sort = {}
         sort[body.sortBy[0]] = body.sortDesc[0]
         const pageNo = body.page
-        const skip = (pageNo - 1) * global.paginationLimit
-        const limit = global.paginationLimit
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
         const data = await Transaction.aggregate([
             {
                 $lookup: {
@@ -149,10 +149,20 @@ export default {
         return { data, count, maxPage }
     },
     getTotalDepositsForAdmin: async () => {
-        const data = await Transaction.countDocuments({
-            status: "completed",
-            transactionType: "deposit"
-        })
-        return data
+        const data = await Transaction.aggregate([
+            {
+                $match: {
+                    transactionType: "deposit",
+                    status: "completed"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: "$amount" }
+                }
+            }
+        ])
+        return data[0].total
     }
 }

@@ -9,4 +9,4 @@ var schema = new Schema(
         timestamps: true
     }
 )
-export default mongoose.model("SettleDeposits", schema)
+export default mongoose.model("Settledeposit", schema)
