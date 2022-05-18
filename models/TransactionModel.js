@@ -11,7 +11,11 @@ export default {
         if (plan.price !== data.amount) {
             return { data: "Amount does not match", value: false }
         }
-        const userData = await User.findOne({ _id: user._id })
+        const userData = await User.findOne({
+            _id: user._id,
+            status: "enabled",
+            mobileVerified: true
+        })
         if (userData == null) {
             return { data: "User not found", value: false }
         }
@@ -27,7 +31,10 @@ export default {
             userData.freeTrialUsed = true
             data.status = "completed"
             console.log("free trial", userData)
-            await User.findOneAndUpdate({ _id: user._id }, userData)
+            await User.findOneAndUpdate(
+                { _id: user._id, status: "enabled", mobileVerified: true },
+                userData
+            )
             data.user = user._id
             data.transactionType = "free"
             let obj = new Transaction(data)

@@ -112,7 +112,7 @@ class RushPay {
                 }
             })
         }
-        const userData = await User.findOne({ _id: data.userId })
+        const userData = await User.findOne({ _id: data.userId, status: "enabled", mobileVerified: true })
         if (userData == null) {
             res.status(400).send({
                 status: 400,
@@ -146,7 +146,7 @@ class RushPay {
             userData.freeTrialUsed = true
             data.status = "completed"
             console.log("free trial", userData)
-            await User.findOneAndUpdate({ _id: data.userId }, userData)
+            await User.findOneAndUpdate({ _id: data.userId, status: "enabled", mobileVerified: true }, userData)
             data.user = data.userId
             data.transactionType = "free"
             let obj = new Transaction(data)

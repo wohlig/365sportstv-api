@@ -22,7 +22,10 @@ export default {
         subobj.daysRemaining = plan.duration
         let userSub = {}
         userSub.planDetails = subobj
-        await User.findOneAndUpdate({ _id: data.user }, userSub)
+        await User.findOneAndUpdate(
+            { _id: data.user, status: "enabled", mobileVerified: true },
+            userSub
+        )
         let saveobj = new Subscription(subobj)
         await saveobj.save()
         return saveobj

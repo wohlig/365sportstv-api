@@ -22,7 +22,7 @@ if (process.env.cron) {
                 await SubscriptionModel.updateData(item._id, item)
                 let userSub = {}
                 userSub.planDetails = item
-                await User.findOneAndUpdate({ _id: item.user }, userSub)
+                await User.findOneAndUpdate({ _id: item.user, status: "enabled", mobileVerified: true }, userSub)
             })
         }
     })

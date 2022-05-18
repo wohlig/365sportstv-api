@@ -60,7 +60,9 @@ global.verifySubscribedUser = async (req, res, next) => {
             )
             req.user = decoded
             const userData = await User.findOne({
-                _id: req.user._id
+                _id: req.user._id,
+                status: "enabled",
+                mobileVerified: true
             })
             if (
                 userData &&
