@@ -53,14 +53,14 @@ export default {
         let data = await Subscription.aggregate([
             {
                 $match: {
-                    planPrice: { $nin: [0] },
+                    planPrice: { $nin: [0] }
                 }
             },
             {
                 $group: {
                     _id: {
-                        user: "$user",
-                    },
+                        user: "$user"
+                    }
                 }
             }
         ])
@@ -71,19 +71,19 @@ export default {
             {
                 $match: {
                     planPrice: { $nin: [0] },
-                    planStatus: "active",
+                    planStatus: "active"
                 }
             },
             {
                 $group: {
                     _id: {
-                        user: "$user",
-                    },
+                        user: "$user"
+                    }
                 }
             }
         ])
         return data.count
-    },
+    }
     // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
     //     let _ = require("lodash")
     //     if (_.isEmpty(body.sortBy)) {

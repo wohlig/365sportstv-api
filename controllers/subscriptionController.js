@@ -29,7 +29,8 @@ router.get(
     authenticateAdmin,
     async (req, res) => {
         try {
-            const data = await SubscriptionModel.getTotalSubscribedUsersForAdmin()
+            const data =
+                await SubscriptionModel.getTotalSubscribedUsersForAdmin()
             res.json(data)
         } catch (error) {
             console.error(error)
@@ -42,7 +43,8 @@ router.get(
     authenticateAdmin,
     async (req, res) => {
         try {
-            const data = await SubscriptionModel.getTotalActiveSubscribedUsersForAdmin()
+            const data =
+                await SubscriptionModel.getTotalActiveSubscribedUsersForAdmin()
             res.json(data)
         } catch (error) {
             console.error(error)
