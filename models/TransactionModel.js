@@ -126,7 +126,7 @@ export default {
         let count = await Transaction.aggregate([
             {
                 $lookup: {
-                    from: "User",
+                    from: "users",
                     localField: "user",
                     foreignField: "_id",
                     as: "user"
@@ -140,6 +140,7 @@ export default {
             {
                 $match: {
                     "user.name": { $regex: body.searchFilter, $options: "i" }
+                    // transactionType: "deposit"
                 }
             }
         ])

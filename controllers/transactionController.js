@@ -33,7 +33,7 @@ const router = Router()
 //     }
 // )
 router.get(
-    "/:id",
+    "/getTransaction/:id",
     authenticateUser,
     ValidateRequest({
         params: {
@@ -140,4 +140,5 @@ router.get("/getTotalDepositsForAdmin", authenticateAdmin, async (req, res) => {
         res.status(500).json(error)
     }
 })
+
 export default router
