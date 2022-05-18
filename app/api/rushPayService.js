@@ -1,7 +1,7 @@
 import constant from "../../config/const"
 import httprequest from "../../common/httpService.js"
 import generateID from "../../common/getId"
-import Plan from "../../mongooseModel/plan.js"
+import Plan from "../../mongooseModel/Plan.js"
 import User from "../../mongooseModel/User.js"
 import SubscriptionModel from "../../models/SubscriptionModel.js"
 class RushPay {

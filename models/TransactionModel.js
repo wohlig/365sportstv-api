@@ -53,5 +53,90 @@ export default {
             { _id: 1, plan: 1 }
         ).populate("plan", "name")
         return obj
+    },
+    getAllTransactionsForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["createdAt"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * global.paginationLimit
+        const limit = global.paginationLimit
+        const data = await Transaction.aggregate([
+            {
+                $lookup: {
+                    from: "User",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$user"
+                }
+            },
+            {
+                $match: {
+                    "user.name": { $regex: body.searchFilter, $options: "i" }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    amount: 1,
+                    user: {
+                        _id: 1,
+                        name: 1,
+                        mobile: 1,
+                    },
+                    updatedAt: 1,
+                    paymentType: 1,
+                    paymentGatewayName: 1,
+                    paymentGatewayResponse: 1,
+                    instamojo_purpose: 1
+                }
+            }
+        ])
+            .sort({ createdAt: 1 })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await Transaction.aggregate([
+            {
+                $lookup: {
+                    from: "User",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$user"
+                }
+            },
+            {
+                $match: {
+                    "user.name": { $regex: body.searchFilter, $options: "i" }
+                }
+            }
+        ])
+        count = count.length
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
     }
 }

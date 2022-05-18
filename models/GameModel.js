@@ -301,7 +301,7 @@ export default {
             .skip(skip)
             .limit(limit)
             .exec()
-        const count = await User.countDocuments({
+        const count = await Game.countDocuments({
             name: { $regex: body.searchFilter, $options: "i" },
             status: { $in: ["enabled", "disabled"] }
         }).exec()

@@ -48,5 +48,47 @@ export default {
     updateData: async (id, data) => {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
-    }
+    },
+    // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
+    //     let _ = require("lodash")
+    //     if (_.isEmpty(body.sortBy)) {
+    //         body.sortBy = ["createdAt"]
+    //     }
+    //     if (_.isEmpty(body.sortDesc)) {
+    //         body.sortDesc = [-1]
+    //     } else {
+    //         if (body.sortDesc[0] === false) {
+    //             body.sortDesc[0] = -1
+    //         }
+    //         if (body.sortDesc[0] === true) {
+    //             body.sortDesc[0] = 1
+    //         }
+    //     }
+    //     var sort = {}
+    //     sort[body.sortBy[0]] = body.sortDesc[0]
+    //     const pageNo = body.page
+    //     const skip = (pageNo - 1) * body.itemsPerPage
+    //     const limit = body.itemsPerPage
+    //     const data = await Subscription.find({
+    //         user: body.userId
+    //     }, {
+    //         _id: 1,
+    //         planName: 1,
+    //         planPrice: 1,
+
+    //     })
+    //         .populate("transactionId", {
+    //             _id: 1,
+                
+    //         })
+    //         .sort(sort)
+    //         .skip(skip)
+    //         .limit(limit)
+    //         .exec()
+    //     const count = await Subscription.countDocuments({
+    //         user: body.userId
+    //     }).exec()
+    //     const maxPage = Math.ceil(count / limit)
+    //     return { data, count, maxPage }
+    // }
 }

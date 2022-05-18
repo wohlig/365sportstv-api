@@ -115,4 +115,19 @@ router.post(
     authenticateUser,
     require("../app/api/rushPayService").initiatePayment
 )
+router.post(
+    "/getAllTransactionsForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data = await TransactionModel.getAllTransactionsForAdmin(
+                req.body
+            )
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 export default router
