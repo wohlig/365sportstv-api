@@ -81,11 +81,10 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
-        console.log("body", body)
         const data = await Transaction.aggregate([
             {
                 $lookup: {
-                    from: "User",
+                    from: "users",
                     localField: "user",
                     foreignField: "_id",
                     as: "user"
@@ -119,7 +118,7 @@ export default {
                 }
             }
         ])
-            .sort({ createdAt: 1 })
+            .sort(sort)
             .skip(skip)
             .limit(limit)
             .exec()
