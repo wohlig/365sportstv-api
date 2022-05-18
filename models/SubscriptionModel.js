@@ -85,7 +85,7 @@ export default {
                 }
             }
         ])
-        return data.count
+        return data.length
     }
     // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
     //     let _ = require("lodash")
