@@ -305,7 +305,7 @@ export default {
                 $addFields: {
                     liveStatus: {
                         $cond: {
-                            if: { $or: [{ $lte: [ "$startTime" , new Date() ] }] },
+                            if: { $or: [{ $lte: ["$startTime", new Date()] }] },
                             then: "Live",
                             else: "Upcoming"
                         }
@@ -346,10 +346,7 @@ export default {
             status: data.status
         }
         let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
-        await FavoriteModel.findOneAndUpdate(
-            { gameId: id },
-            updateObj
-        )
+        await FavoriteModel.findOneAndUpdate({ gameId: id }, updateObj)
         return obj
     }
 }
