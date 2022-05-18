@@ -273,7 +273,7 @@ export default {
         )
         return obj
     },
-    searchAllGamesForAdmin: async (body) => {
+    getAllGamesForAdmin: async (body) => {
         let _ = require("lodash")
         if (_.isEmpty(body.sortBy)) {
             body.sortBy = ["startTime"]
