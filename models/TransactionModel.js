@@ -97,7 +97,10 @@ export default {
             },
             {
                 $match: {
-                    "user.name": { $regex: body.searchFilter, $options: "i" }
+                    "user.name": { $regex: body.searchFilter, $options: "i" },
+                    amount: {
+                        $nin: [0]
+                    }
                 }
             },
             {
