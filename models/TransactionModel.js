@@ -163,6 +163,14 @@ export default {
                 }
             }
         ])
-        return data[0].total
+        const settled = await Settledeposit.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: "$amount" }
+                }
+            }
+        ])
+        return data[0].total - settled[0].total
     }
 }
