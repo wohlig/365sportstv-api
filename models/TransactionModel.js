@@ -97,7 +97,7 @@ export default {
             },
             {
                 $match: {
-                    "user.name": { $regex: body.searchFilter, $options: "i" },
+                    "user.name": { $regex: body.searchFilter, $options: "i" }
                     // transactionType: "deposit"
                 }
             },
