@@ -48,7 +48,7 @@ export default {
     updateData: async (id, data) => {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
-    },
+    }
     // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
     //     let _ = require("lodash")
     //     if (_.isEmpty(body.sortBy)) {
@@ -79,7 +79,7 @@ export default {
     //     })
     //         .populate("transactionId", {
     //             _id: 1,
-                
+
     //         })
     //         .sort(sort)
     //         .skip(skip)

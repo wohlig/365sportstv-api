@@ -101,7 +101,7 @@ export default {
                     user: {
                         _id: 1,
                         name: 1,
-                        mobile: 1,
+                        mobile: 1
                     },
                     updatedAt: 1,
                     paymentType: 1,
