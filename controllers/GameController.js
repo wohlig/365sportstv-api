@@ -187,4 +187,16 @@ router.put("/updateOneGameForAdmin/:id", async (req, res) => {
         res.status(500).json(error)
     }
 })
+router.put("/updateGameAndFavoriteStatus/:id", async (req, res) => {
+    try {
+        const data = await GameModel.updateGameAndFavoriteStatus(
+            req.params.id,
+            req.body
+        )
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 export default router

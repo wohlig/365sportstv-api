@@ -1,3 +1,5 @@
+import FavoriteModel from "./FavoriteModel"
+
 export default {
     //create game
     saveData: async (data) => {
@@ -273,7 +275,7 @@ export default {
         )
         return obj
     },
-    getAllGamesForAdmin: async (body) => {
+    searchAllGamesForAdmin: async (body) => {
         let _ = require("lodash")
         if (_.isEmpty(body.sortBy)) {
             body.sortBy = ["startTime"]
@@ -293,14 +295,36 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        const data = await Game.find({
-            name: { $regex: body.searchFilter, $options: "i" },
-            status: { $in: ["enabled", "disabled"] }
-        })
+        const data = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["enabled", "disabled"] }
+                }
+            },
+            {
+                $addFields: {
+                    liveStatus: {
+                        $cond: {
+                            if: { $or: [{ $lte: [ "$startTime" , new Date() ] }] },
+                            then: "Live",
+                            else: "Upcoming"
+                        }
+                    }
+                }
+            }
+        ])
             .sort(sort)
             .skip(skip)
             .limit(limit)
             .exec()
+        // const data = await Game.find({
+        //     name: { $regex: body.searchFilter, $options: "i" },
+        //     status: { $in: ["enabled", "disabled"] }
+        // })
+        //     .sort(sort)
+        //     .skip(skip)
+        //     .limit(limit)
+        //     .exec()
         const count = await Game.countDocuments({
             name: { $regex: body.searchFilter, $options: "i" },
             status: { $in: ["enabled", "disabled"] }
@@ -315,6 +339,17 @@ export default {
     },
     updateOneGameForAdmin: async (id, data) => {
         let obj = await Game.findOneAndUpdate({ _id: id }, data)
+        return obj
+    },
+    updateGameAndFavoriteStatus: async (id, data) => {
+        let updateObj = {
+            status: data.status
+        }
+        let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
+        await FavoriteModel.findOneAndUpdate(
+            { gameId: id },
+            updateObj
+        )
         return obj
     }
 }
