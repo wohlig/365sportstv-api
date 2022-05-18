@@ -52,7 +52,7 @@ export default {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
     },
-    getTotalSubscribedUsersForAdmin: async (body) => {
+    getTotalSubscribedUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
             {
                 $match: {
@@ -69,7 +69,7 @@ export default {
         ])
         return data.length
     },
-    getTotalActiveSubscribedUsersForAdmin: async (body) => {
+    getTotalActiveSubscribedUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
             {
                 $match: {
