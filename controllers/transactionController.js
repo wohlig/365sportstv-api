@@ -117,7 +117,7 @@ router.post(
 )
 router.post(
     "/getAllTransactionsForAdmin",
-    // authenticateAdmin,
+    authenticateAdmin,
     async (req, res) => {
         try {
             const data = await TransactionModel.getAllTransactionsForAdmin(
@@ -131,7 +131,6 @@ router.post(
     }
 )
 router.get("/getTotalDepositsForAdmin", authenticateAdmin, async (req, res) => {
-    console.log("IN")
     try {
         const data = await TransactionModel.getTotalDepositsForAdmin()
         res.json(data)
