@@ -81,6 +81,7 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
+        console.log("body", body)
         const data = await Transaction.aggregate([
             {
                 $lookup: {
@@ -122,7 +123,7 @@ export default {
             .skip(skip)
             .limit(limit)
             .exec()
-        const count = await Transaction.aggregate([
+        let count = await Transaction.aggregate([
             {
                 $lookup: {
                     from: "User",

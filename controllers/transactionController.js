@@ -117,7 +117,7 @@ router.post(
 )
 router.post(
     "/getAllTransactionsForAdmin",
-    authenticateAdmin,
+    // authenticateAdmin,
     async (req, res) => {
         try {
             const data = await TransactionModel.getAllTransactionsForAdmin(
