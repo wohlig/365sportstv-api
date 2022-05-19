@@ -16,7 +16,7 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let data = await SettleDeposit.find({})
+        let data = await Settledeposit.find({})
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
