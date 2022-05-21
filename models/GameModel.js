@@ -11,75 +11,77 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
-        const data = await Game.aggregate([
-            {
-                $match: {
-                    status: { $in: ["enabled"] },
-                    startTime: { $lte: new Date() }
-                }
-            },
-            {
-                $lookup: {
-                    from: "favorites",
-                    as: "favorite",
-                    let: { game_id: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                userId: mongoose.Types.ObjectId(body.user)
-                            }
-                        },
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        {
-                                            $eq: ["$gameId", "$$game_id"]
-                                        }
-                                    ]
+        const [data, count] = await Promise.all([
+            Game.aggregate([
+                {
+                    $match: {
+                        status: { $in: ["enabled"] },
+                        startTime: { $lte: new Date() }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "favorites",
+                        as: "favorite",
+                        let: { game_id: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    userId: mongoose.Types.ObjectId(body.user)
+                                }
+                            },
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            {
+                                                $eq: ["$gameId", "$$game_id"]
+                                            }
+                                        ]
+                                    }
                                 }
                             }
-                        }
-                    ]
-                }
-            },
-            {
-                $unwind: {
-                    path: "$favorite",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    favorite: {
-                        $cond: {
-                            if: { $eq: ["$favorite", null] },
-                            then: false,
-                            else: {
-                                $cond: {
-                                    if: {
-                                        $eq: ["$favorite.status", "enabled"]
-                                    },
-                                    then: true,
-                                    else: false
+                        ]
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$favorite",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        favorite: {
+                            $cond: {
+                                if: { $eq: ["$favorite", null] },
+                                then: false,
+                                else: {
+                                    $cond: {
+                                        if: {
+                                            $eq: ["$favorite.status", "enabled"]
+                                        },
+                                        then: true,
+                                        else: false
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+            ])
+                .sort({ startTime: 1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Game.countDocuments({
+                status: { $in: ["enabled"] },
+                startTime: { $lte: new Date() }
+            }).exec()
         ])
-            .sort({ startTime: 1 })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Game.countDocuments({
-            status: { $in: ["enabled"] },
-            startTime: { $lte: new Date() }
-        }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
@@ -87,75 +89,77 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
-        const data = await Game.aggregate([
-            {
-                $match: {
-                    status: { $in: ["enabled"] },
-                    startTime: { $gte: new Date() }
-                }
-            },
-            {
-                $lookup: {
-                    from: "favorites",
-                    as: "favorite",
-                    let: { game_id: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                userId: mongoose.Types.ObjectId(body.user)
-                            }
-                        },
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        {
-                                            $eq: ["$gameId", "$$game_id"]
-                                        }
-                                    ]
+        const [data, count] = await Promise.all([
+            Game.aggregate([
+                {
+                    $match: {
+                        status: { $in: ["enabled"] },
+                        startTime: { $gte: new Date() }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "favorites",
+                        as: "favorite",
+                        let: { game_id: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    userId: mongoose.Types.ObjectId(body.user)
+                                }
+                            },
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            {
+                                                $eq: ["$gameId", "$$game_id"]
+                                            }
+                                        ]
+                                    }
                                 }
                             }
-                        }
-                    ]
-                }
-            },
-            {
-                $unwind: {
-                    path: "$favorite",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    favorite: {
-                        $cond: {
-                            if: { $eq: ["$favorite", null] },
-                            then: false,
-                            else: {
-                                $cond: {
-                                    if: {
-                                        $eq: ["$favorite.status", "enabled"]
-                                    },
-                                    then: true,
-                                    else: false
+                        ]
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$favorite",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        favorite: {
+                            $cond: {
+                                if: { $eq: ["$favorite", null] },
+                                then: false,
+                                else: {
+                                    $cond: {
+                                        if: {
+                                            $eq: ["$favorite.status", "enabled"]
+                                        },
+                                        then: true,
+                                        else: false
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+            ])
+                .sort({ startTime: 1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Game.countDocuments({
+                status: { $in: ["enabled"] },
+                startTime: { $gte: new Date() }
+            }).exec()
         ])
-            .sort({ startTime: 1 })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Game.countDocuments({
-            status: { $in: ["enabled"] },
-            startTime: { $gte: new Date() }
-        }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
@@ -163,30 +167,32 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
-        const data = await Game.aggregate([
-            {
-                $match: {
-                    status: { $in: ["disabled"] },
-                    startTime: { $lt: new Date() }
+        const [data, count] = await Promise.all([
+            Game.aggregate([
+                {
+                    $match: {
+                        status: { $in: ["disabled"] },
+                        startTime: { $lt: new Date() }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        scoreId: 1
+                    }
                 }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    scoreId: 1
-                }
-            }
+            ])
+                .sort({ startTime: -1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Game.countDocuments({
+                status: { $in: ["disabled"] },
+                startTime: { $lt: new Date() }
+            }).exec()
         ])
-            .sort({ startTime: -1 })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Game.countDocuments({
-            status: { $in: ["disabled"] },
-            startTime: { $lt: new Date() }
-        }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
@@ -295,40 +301,36 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        const data = await Game.aggregate([
-            {
-                $match: {
-                    status: { $in: ["enabled", "disabled"] }
-                }
-            },
-            {
-                $addFields: {
-                    liveStatus: {
-                        $cond: {
-                            if: { $or: [{ $lte: ["$startTime", new Date()] }] },
-                            then: "Live",
-                            else: "Upcoming"
+        const [data, count] = await Promise.all([
+            Game.aggregate([
+                {
+                    $match: {
+                        status: { $in: ["enabled", "disabled"] }
+                    }
+                },
+                {
+                    $addFields: {
+                        liveStatus: {
+                            $cond: {
+                                if: {
+                                    $or: [{ $lte: ["$startTime", new Date()] }]
+                                },
+                                then: "Live",
+                                else: "Upcoming"
+                            }
                         }
                     }
                 }
-            }
+            ])
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Game.countDocuments({
+                name: { $regex: body.searchFilter, $options: "i" },
+                status: { $in: ["enabled", "disabled"] }
+            }).exec()
         ])
-            .sort(sort)
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        // const data = await Game.find({
-        //     name: { $regex: body.searchFilter, $options: "i" },
-        //     status: { $in: ["enabled", "disabled"] }
-        // })
-        //     .sort(sort)
-        //     .skip(skip)
-        //     .limit(limit)
-        //     .exec()
-        const count = await Game.countDocuments({
-            name: { $regex: body.searchFilter, $options: "i" },
-            status: { $in: ["enabled", "disabled"] }
-        }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },

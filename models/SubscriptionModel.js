@@ -34,17 +34,19 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
-        const data = await Subscription.find({
-            user: user._id
-        })
-            .populate("transactionId")
-            .sort({ createdAt: 1 })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Subscription.countDocuments({
-            user: user._id
-        }).exec()
+        const [data, count] = await Promise.all([
+            Subscription.find({
+                user: user._id
+            })
+                .populate("transactionId")
+                .sort({ createdAt: 1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Subscription.countDocuments({
+                user: user._id
+            }).exec()
+        ])
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },

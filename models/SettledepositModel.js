@@ -16,12 +16,14 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let data = await Settledeposit.find({})
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .exec()
-        const count = await Settledeposit.countDocuments({}).exec()
+        const [data, count] = await Promise.all([
+            Settledeposit.find({})
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Settledeposit.countDocuments({}).exec()
+        ])
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     }
