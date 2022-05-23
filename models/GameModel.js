@@ -370,7 +370,7 @@ export default {
             status: data.status
         }
         let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
-        await FavoriteModel.findOneAndUpdate({ gameId: id }, updateObj)
+        await Favorite.findOneAndUpdate({ gameId: id }, updateObj)
         return obj
     }
 }
