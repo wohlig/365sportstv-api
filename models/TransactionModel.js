@@ -82,7 +82,7 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        const [data, count] = await Promise.all([
+        let [data, count] = await Promise.all([
             Transaction.aggregate([
                 {
                     $lookup: {

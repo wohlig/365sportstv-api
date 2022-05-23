@@ -1,3 +1,5 @@
+import { validateAdditionalItems } from "ajv/dist/vocabularies/applicator/additionalItems"
+import { promised } from "q"
 import Subscription from "../mongooseModel/Subscription"
 const rush = require("../app/cron/rushProcessing")
 
@@ -16,16 +18,22 @@ if (process.env.cron) {
         if (data.length > 0) {
             _.each(data, async (item) => {
                 item.daysRemaining = item.daysRemaining - 1
-                if (item.daysRemaining <= 0) {
+                if (item.daysRemaining <= 0 || item.endDate < new Date()) {
                     item.planStatus = "expired"
                 }
-                await SubscriptionModel.updateData(item._id, item)
                 let userSub = {}
                 userSub.planDetails = item
-                await User.findOneAndUpdate(
-                    { _id: item.user, status: "enabled", mobileVerified: true },
-                    userSub
-                )
+                await promise.all([
+                    SubscriptionModel.updateData(item._id, item),
+                    User.findOneAndUpdate(
+                        {
+                            _id: item.user,
+                            status: "enabled",
+                            mobileVerified: true
+                        },
+                        userSub
+                    )
+                ])
             })
         }
     })
