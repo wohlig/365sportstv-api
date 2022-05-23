@@ -12,6 +12,6 @@ global.q = require("q")
 global.jwtDecode = require("jwt-decode")
 global.sha256 = require("js-sha256").sha256
 global.randomize = require("randomatic")
-global.CryptoJS = require("crypto-js");
+global.CryptoJS = require("crypto-js")
 global.crypto_key = env["CRYPTO_KEY"]
 global._ = require("lodash")
