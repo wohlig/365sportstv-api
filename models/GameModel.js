@@ -1,5 +1,5 @@
 import FavoriteModel from "./FavoriteModel"
-
+import axios from "axios"
 export default {
     //create game
     saveData: async (data) => {
@@ -197,10 +197,6 @@ export default {
         return { data, count, maxPage }
     },
     getOne: async (id, userId) => {
-        // return await Game.findOne({
-        //     _id: id,
-        //     status: { $in: ["enabled", "disabled"] }
-        // }).exec()
         const data = await Game.aggregate([
             {
                 $match: {
@@ -264,6 +260,32 @@ export default {
                 }
             }
         ]).exec()
+        const streamSecurity = await axios.post(
+            "https://bintu-splay.nanocosmos.de/secure/token",
+            {
+                streamname: data[0].streamId,
+                tag: "",
+                expires: ""
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-BINTU-APIKEY": process.env.BINTU_API_KEY
+                }
+            }
+        )
+
+        var encrypted = CryptoJS.AES.encrypt(
+            JSON.stringify(streamSecurity.data.h5live.security),
+            crypto_key,
+            {
+                keySize: 128 / 8,
+                iv: crypto_key,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }
+        ).toString()
+        data[0].security = encrypted
         return data[0]
     },
 

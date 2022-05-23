@@ -147,8 +147,8 @@ export default {
                         "user.name": {
                             $regex: body.searchFilter,
                             $options: "i"
-                        }
-                        // transactionType: "deposit"
+                        },
+                        transactionType: "deposit"
                     }
                 }
             ])

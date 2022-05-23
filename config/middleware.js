@@ -58,17 +58,6 @@ global.verifySubscribedUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            console.log(
-                new Date(req.user.currentPlan.endDate).toLocaleString(
-                    undefined,
-                    { timeZone: "Asia/Kolkata" }
-                )
-            )
-            console.log(
-                new Date().toLocaleString(undefined, {
-                    timeZone: "Asia/Kolkata"
-                })
-            )
             if (
                 req.user &&
                 req.user.currentPlan &&

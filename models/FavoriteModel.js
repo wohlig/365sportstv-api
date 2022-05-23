@@ -1,3 +1,4 @@
+import axios from "axios"
 export default {
     //create or update favorites
     saveData: async (data) => {
@@ -93,6 +94,36 @@ export default {
                 }
             }
         ])
+        await Promise.all(
+            data.map(async (record) => {
+                const streamSecurity = await axios.post(
+                    "https://bintu-splay.nanocosmos.de/secure/token",
+                    {
+                        streamname: record.streamId,
+                        tag: "",
+                        expires: ""
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-BINTU-APIKEY": process.env.BINTU_API_KEY
+                        }
+                    }
+                )
+
+                var encrypted = CryptoJS.AES.encrypt(
+                    JSON.stringify(streamSecurity.data.h5live.security),
+                    crypto_key,
+                    {
+                        keySize: 128 / 8,
+                        iv: crypto_key,
+                        mode: CryptoJS.mode.CBC,
+                        padding: CryptoJS.pad.Pkcs7
+                    }
+                ).toString()
+                record.security = encrypted
+            })
+        )
         return data
     },
     getFavoritesForUserInBackend: async (body) => {
