@@ -1,5 +1,6 @@
 import FavoriteModel from "./FavoriteModel"
 import axios from "axios"
+import moment from "moment"
 export default {
     //create game
     saveData: async (data) => {
@@ -16,7 +17,7 @@ export default {
                 {
                     $match: {
                         status: { $in: ["enabled"] },
-                        startTime: { $lte: new Date() }
+                        startTime: { $lte: moment().toDate() }
                     }
                 },
                 {
@@ -79,7 +80,7 @@ export default {
                 .exec(),
             Game.countDocuments({
                 status: { $in: ["enabled"] },
-                startTime: { $lte: new Date() }
+                startTime: { $lte: moment().toDate() }
             }).exec()
         ])
         const maxPage = Math.ceil(count / limit)
@@ -94,7 +95,7 @@ export default {
                 {
                     $match: {
                         status: { $in: ["enabled"] },
-                        startTime: { $gte: new Date() }
+                        startTime: { $gte: moment() }
                     }
                 },
                 {
@@ -157,7 +158,7 @@ export default {
                 .exec(),
             Game.countDocuments({
                 status: { $in: ["enabled"] },
-                startTime: { $gte: new Date() }
+                startTime: { $gte: moment().toDate() }
             }).exec()
         ])
         const maxPage = Math.ceil(count / limit)
@@ -172,7 +173,7 @@ export default {
                 {
                     $match: {
                         status: { $in: ["disabled"] },
-                        startTime: { $lt: new Date() }
+                        startTime: { $lt: moment().toDate() }
                     }
                 },
                 {
@@ -190,7 +191,7 @@ export default {
                 .exec(),
             Game.countDocuments({
                 status: { $in: ["disabled"] },
-                startTime: { $lt: new Date() }
+                startTime: { $lt: moment().toDate() }
             }).exec()
         ])
         const maxPage = Math.ceil(count / limit)
@@ -335,7 +336,14 @@ export default {
                         liveStatus: {
                             $cond: {
                                 if: {
-                                    $or: [{ $lte: ["$startTime", new Date()] }]
+                                    $or: [
+                                        {
+                                            $lte: [
+                                                "$startTime",
+                                                moment().toDate()
+                                            ]
+                                        }
+                                    ]
                                 },
                                 then: "Live",
                                 else: "Upcoming"

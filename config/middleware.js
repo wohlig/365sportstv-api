@@ -3,6 +3,8 @@
  * import bodyParser from 'body-parser'
  */
 
+const moment = require("moment")
+
 /**
  * Use Middleware in Express Apps
  * app.use(bodyParser.json())
@@ -58,16 +60,12 @@ global.verifySubscribedUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
+
             if (
                 req.user &&
                 req.user.currentPlan &&
-                new Date(req.user.currentPlan.endDate).toLocaleString(
-                    undefined,
-                    { timeZone: "Asia/Kolkata" }
-                ) >=
-                    new Date().toLocaleString(undefined, {
-                        timeZone: "Asia/Kolkata"
-                    })
+                moment(req.user.currentPlan.endDate).utcOffset("+05:30") >=
+                    moment().utcOffset("+5:30")
             ) {
                 next()
             } else {
