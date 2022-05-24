@@ -24,6 +24,34 @@ router.post(
         }
     }
 )
+router.get(
+    "/getTotalSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getTotalSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
+    "/getTotalActiveSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getTotalActiveSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 // router.post(
 //     "/create",
 //     authenticateUser,
@@ -45,6 +73,19 @@ router.post(
 //             } else {
 //                 res.status(500).json(data.data)
 //             }
+//         } catch (error) {
+//             console.error(error)
+//             res.status(500).json(error)
+//         }
+//     }
+// )
+// router.post(
+//     "/getAllSubscriptionsOfOneUserForAdmin",
+//     authenticateAdmin,
+//     async (req, res) => {
+//         try {
+//             const data = await TransactionModel.getAllSubscriptionsOfOneUserForAdmin(req.body)
+//             res.json(data)
 //         } catch (error) {
 //             console.error(error)
 //             res.status(500).json(error)

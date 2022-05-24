@@ -53,19 +53,21 @@ global.verifySubscribedUser = async (req, res, next) => {
     if (req && req.headers && req.headers.authorization) {
         var decoded
         try {
-            // decoded = await jwtDecode(req.headers.accesstoken)
             const decoded = jwt.verify(
                 req.headers.authorization,
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-            const userData = await User.findOne({
-                _id: req.user._id
-            })
             if (
-                userData &&
-                userData.planDetails &&
-                userData.planDetails.planStatus === "active"
+                req.user &&
+                req.user.currentPlan &&
+                new Date(req.user.currentPlan.endDate).toLocaleString(
+                    undefined,
+                    { timeZone: "Asia/Kolkata" }
+                ) >=
+                    new Date().toLocaleString(undefined, {
+                        timeZone: "Asia/Kolkata"
+                    })
             ) {
                 next()
             } else {

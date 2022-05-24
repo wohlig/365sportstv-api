@@ -1,7 +1,7 @@
 import constant from "../../config/const"
 import httprequest from "../../common/httpService.js"
 import generateID from "../../common/getId"
-import Plan from "../../mongooseModel/plan.js"
+import Plan from "../../mongooseModel/Plan.js"
 import User from "../../mongooseModel/User.js"
 import SubscriptionModel from "../../models/SubscriptionModel.js"
 class RushPay {
@@ -81,6 +81,7 @@ class RushPay {
                             data: "Transaction not saved"
                         })
                     }
+                    deferred.resolve(dbresponse)
                 })
                 .catch((err) => {
                     deferred.reject(err)
@@ -112,7 +113,11 @@ class RushPay {
                 }
             })
         }
-        const userData = await User.findOne({ _id: data.userId })
+        const userData = await User.findOne({
+            _id: data.userId,
+            status: "enabled",
+            mobileVerified: true
+        })
         if (userData == null) {
             res.status(400).send({
                 status: 400,
@@ -146,14 +151,39 @@ class RushPay {
             userData.freeTrialUsed = true
             data.status = "completed"
             console.log("free trial", userData)
-            await User.findOneAndUpdate({ _id: data.userId }, userData)
+            await User.findOneAndUpdate(
+                { _id: data.userId, status: "enabled", mobileVerified: true },
+                userData
+            )
             data.user = data.userId
             data.transactionType = "free"
             let obj = new Transaction(data)
-            await obj.save().then(async (data) => {
-                await SubscriptionModel.saveData(data)
-            })
-            res.status(200).json(obj)
+            await obj
+                .save()
+                .then(async (data) => {
+                    await SubscriptionModel.saveData(data)
+                })
+                .then(async () => {
+                    const user = await User.findOne({
+                        _id: data.userId
+                    })
+                    let objToGenerateAccessToken = {
+                        _id: user._id,
+                        name: user.name,
+                        mobile: user.mobile,
+                        userType: user.userType,
+                        currentPlan: user.planDetails
+                    }
+                    var token = jwt.sign(objToGenerateAccessToken, jwt_key)
+                    res.status(200).json({ data: obj, accessToken: token })
+                })
+                .catch((err) => {
+                    res.status(500).send({
+                        status: 500,
+                        message: "Internal server error",
+                        error: err
+                    })
+                })
         } else {
             try {
                 let RP = new RushPay()
