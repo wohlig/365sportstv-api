@@ -58,6 +58,7 @@ jobs:
                   git config user.email "$GITHUB_ACTOR@wohlig.com"
                   
                   yq e '.spec.template.spec.containers[0].image = "032313255471.dkr.ecr.eu-central-1.amazonaws.com/api:${{ env.GITHUB_BRANCH }}"' -i deployment.apps/api.yaml
+                  yq e '.spec.template.spec.containers[0].image = "032313255471.dkr.ecr.eu-central-1.amazonaws.com/api:${{ env.GITHUB_BRANCH }}"' -i deployment.apps/api-cron.yaml
                   
                   git add .
                  
