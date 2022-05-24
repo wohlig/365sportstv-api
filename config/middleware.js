@@ -60,7 +60,6 @@ global.verifySubscribedUser = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
-
             if (
                 req.user &&
                 req.user.currentPlan &&
