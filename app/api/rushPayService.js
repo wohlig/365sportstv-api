@@ -148,13 +148,12 @@ class RushPay {
                     }
                 })
             }
-            userData.freeTrialUsed = true
-            data.status = "completed"
             data.transactionType = "free"
         } else {
-            data.status = "completed"
             data.transactionType = "deposit"
         }
+        data.status = "completed"
+        userData.freeTrialUsed = true
         await User.findOneAndUpdate(
             { _id: data.userId, status: "enabled", mobileVerified: true },
             userData

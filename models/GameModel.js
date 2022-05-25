@@ -95,7 +95,7 @@ export default {
                 {
                     $match: {
                         status: { $in: ["enabled"] },
-                        startTime: { $gte: moment() }
+                        startTime: { $gte: moment().toDate() }
                     }
                 },
                 {
