@@ -57,6 +57,31 @@ router.get(
         }
     }
 )
+router.get(
+    "/getTransactionForAdmin/:id",
+    authenticateAdmin,
+    ValidateRequest({
+        params: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    format: "objectId"
+                }
+            },
+            required: ["id"]
+        }
+    }),
+    async (req, res) => {
+        try {
+            const data = await TransactionModel.getOneForAdmin(req.params.id)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 router.put(
     "/:id",
     authenticateUser,

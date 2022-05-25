@@ -150,94 +150,98 @@ class RushPay {
             }
             userData.freeTrialUsed = true
             data.status = "completed"
-            console.log("free trial", userData)
-            await User.findOneAndUpdate(
-                { _id: data.userId, status: "enabled", mobileVerified: true },
-                userData
-            )
-            data.user = data.userId
             data.transactionType = "free"
-            let obj = new Transaction(data)
-            await obj
-                .save()
-                .then(async (data) => {
-                    await SubscriptionModel.saveData(data)
-                })
-                .then(async () => {
-                    const user = await User.findOne({
-                        _id: data.userId
-                    })
-                    let objToGenerateAccessToken = {
-                        _id: user._id,
-                        name: user.name,
-                        mobile: user.mobile,
-                        userType: user.userType,
-                        currentPlan: user.planDetails
-                    }
-                    var token = jwt.sign(objToGenerateAccessToken, jwt_key)
-                    res.status(200).json({ data: obj, accessToken: token })
-                })
-                .catch((err) => {
-                    res.status(500).send({
-                        status: 500,
-                        message: "Internal server error",
-                        error: err
-                    })
-                })
         } else {
-            try {
-                let RP = new RushPay()
-                let reqData = {}
-                let data = req.body
-                data.userId = req.user._id
-                reqData = data
-                RP.createTransaction(reqData)
-                    .then((transactionDetails) => {
-                        reqData.order_id = transactionDetails.instamojo_purpose
-                        return RP.createOrder(reqData)
-                    })
-                    .then((responsePage) => {
-                        if (
-                            responsePage &&
-                            responsePage.status.toLowerCase() == "success"
-                        ) {
-                            return responsePage.reason
-                        } else {
-                            res.status(400).send({
-                                status: 400,
-                                message: "Bad request",
-                                error: {
-                                    message:
-                                        "Unable to process, please try again",
-                                    detials: responsePage
-                                }
-                            })
-                        }
-                    })
-                    .then((url) => {
-                        res.status(200).send(
-                            `<head><script>window.open('${url}','_self')</script></head><body>Processing</body>`
-                        )
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                        res.status(400).send({
-                            status: 400,
-                            message: "Bad request",
-                            error: error
-                        })
-                    })
-            } catch (error) {
-                console.log(error)
+            data.status = "completed"
+            data.transactionType = "deposit"
+        }
+        await User.findOneAndUpdate(
+            { _id: data.userId, status: "enabled", mobileVerified: true },
+            userData
+        )
+        data.user = data.userId
+        let obj = new Transaction(data)
+        await obj
+            .save()
+            .then(async (data) => {
+                await SubscriptionModel.saveData(data)
+            })
+            .then(async () => {
+                const user = await User.findOne({
+                    _id: data.userId
+                })
+                let objToGenerateAccessToken = {
+                    _id: user._id,
+                    name: user.name,
+                    mobile: user.mobile,
+                    userType: user.userType,
+                    currentPlan: user.planDetails
+                }
+                var token = jwt.sign(objToGenerateAccessToken, jwt_key)
+                res.status(200).json({ data: obj, accessToken: token })
+            })
+            .catch((err) => {
                 res.status(500).send({
                     status: 500,
                     message: "Internal server error",
-                    error: {
-                        message: "oops something went wrong"
-                    }
+                    error: err
                 })
-            }
-        }
+            })
+        // }
+        // else {
+        //     try {
+        //         let RP = new RushPay()
+        //         let reqData = {}
+        //         let data = req.body
+        //         data.userId = req.user._id
+        //         reqData = data
+        //         RP.createTransaction(reqData)
+        //             .then((transactionDetails) => {
+        //                 reqData.order_id = transactionDetails.instamojo_purpose
+        //                 return RP.createOrder(reqData)
+        //             })
+        //             .then((responsePage) => {
+        //                 if (
+        //                     responsePage &&
+        //                     responsePage.status.toLowerCase() == "success"
+        //                 ) {
+        //                     return responsePage.reason
+        //                 } else {
+        //                     res.status(400).send({
+        //                         status: 400,
+        //                         message: "Bad request",
+        //                         error: {
+        //                             message:
+        //                                 "Unable to process, please try again",
+        //                             detials: responsePage
+        //                         }
+        //                     })
+        //                 }
+        //             })
+        //             .then((url) => {
+        //                 res.status(200).send(
+        //                     `<head><script>window.open('${url}','_self')</script></head><body>Processing</body>`
+        //                 )
+        //             })
+        //             .catch((error) => {
+        //                 console.log(error)
+        //                 res.status(400).send({
+        //                     status: 400,
+        //                     message: "Bad request",
+        //                     error: error
+        //                 })
+        //             })
+        //     } catch (error) {
+        //         console.log(error)
+        //         res.status(500).send({
+        //             status: 500,
+        //             message: "Internal server error",
+        //             error: {
+        //                 message: "oops something went wrong"
+        //             }
+        //         })
+        //     }
+        // }
     }
     paymentStatusCron(order_id) {
         console.log("getting call by rush cron  ", order_id)

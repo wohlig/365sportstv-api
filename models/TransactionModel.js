@@ -62,6 +62,15 @@ export default {
         ).populate("plan", "name")
         return obj
     },
+    getOneForAdmin: async (id) => {
+        let obj = await Transaction.findOne({
+            _id: id,
+            status: "completed"
+        })
+            .populate("plan")
+            .populate("user")
+        return obj
+    },
     getAllTransactionsForAdmin: async (body) => {
         let _ = require("lodash")
         if (_.isEmpty(body.sortBy)) {
@@ -117,7 +126,7 @@ export default {
                             mobile: 1
                         },
                         updatedAt: 1,
-                        paymentType: 1,
+                        transactionType: 1,
                         paymentGatewayName: 1,
                         paymentGatewayResponse: 1,
                         instamojo_purpose: 1
