@@ -151,8 +151,7 @@ class RushPay {
             userData.freeTrialUsed = true
             data.status = "completed"
             data.transactionType = "free"
-        }
-        else {
+        } else {
             data.status = "completed"
             data.transactionType = "deposit"
         }

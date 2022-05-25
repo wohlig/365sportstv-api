@@ -63,12 +63,12 @@ export default {
         return obj
     },
     getOneForAdmin: async (id) => {
-        let obj = await Transaction.findOne(
-            {
-                _id: id,
-                status: "completed"
-            },
-        ).populate("plan").populate("user")
+        let obj = await Transaction.findOne({
+            _id: id,
+            status: "completed"
+        })
+            .populate("plan")
+            .populate("user")
         return obj
     },
     getAllTransactionsForAdmin: async (body) => {
