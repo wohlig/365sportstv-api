@@ -15,10 +15,11 @@ export default {
         subobj.planDuration = plan.duration
         subobj.transactionId = data._id
         subobj.planStatus = "active"
-        subobj.startDate = new Date()
-        subobj.endDate = new Date(
-            new Date().setMonth(new Date().getMonth() + plan.duration)
-        )
+        subobj.startDate = moment().toDate()
+        subobj.endDate = moment()
+            .add(plan.duration, "days")
+            .endOf("day")
+            .toDate()
         subobj.daysRemaining = plan.duration
         let userSub = {}
         userSub.planDetails = subobj

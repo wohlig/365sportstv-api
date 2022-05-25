@@ -18,7 +18,11 @@ if (process.env.cron) {
         if (data.length > 0) {
             _.each(data, async (item) => {
                 item.daysRemaining = item.daysRemaining - 1
-                if (item.daysRemaining <= 0 || item.endDate < new Date()) {
+                if (
+                    item.daysRemaining <= 0 ||
+                    moment(item.endDate).utcOffset("+05:30") >=
+                        moment().utcOffset("+5:30")
+                ) {
                     item.planStatus = "expired"
                 }
                 let userSub = {}
