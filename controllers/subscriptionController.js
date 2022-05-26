@@ -84,7 +84,10 @@ router.post(
     authenticateAdmin,
     async (req, res) => {
         try {
-            const data = await SubscriptionModel.getAllSubscriptionsOfOneUserForAdmin(req.body)
+            const data =
+                await SubscriptionModel.getAllSubscriptionsOfOneUserForAdmin(
+                    req.body
+                )
             res.json(data)
         } catch (error) {
             console.error(error)

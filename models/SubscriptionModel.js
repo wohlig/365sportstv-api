@@ -120,13 +120,13 @@ export default {
                 planPrice: 1,
                 startDate: 1,
                 endDate: 1,
-                createdAt: 1,
+                createdAt: 1
             }
         )
             .populate("transactionId", {
                 _id: 1,
                 status: 1,
-                transactionType: 1,
+                transactionType: 1
             })
             .sort(sort)
             .skip(skip)
