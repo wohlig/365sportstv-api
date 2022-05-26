@@ -5,8 +5,8 @@ var schema = new Schema(
         planPrice: { type: Number },
         planName: { type: String },
         planDuration: { type: Number },
-        planStartDate: { type: Date },
-        planEndDate: { type: Date },
+        startDate: { type: Date },
+        endDate: { type: Date },
         planStatus: {
             type: String,
             enum: ["active", "expeired", "cancelled"],

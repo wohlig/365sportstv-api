@@ -89,47 +89,53 @@ export default {
             }
         ])
         return data.length
+    },
+    getAllSubscriptionsOfOneUserForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["createdAt"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const data = await Subscription.find(
+            {
+                user: body.userId
+            },
+            {
+                _id: 1,
+                planName: 1,
+                planPrice: 1,
+                startDate: 1,
+                endDate: 1,
+                createdAt: 1
+            }
+        )
+            .populate("transactionId", {
+                _id: 1,
+                status: 1,
+                transactionType: 1
+            })
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .exec()
+        const count = await Subscription.countDocuments({
+            user: body.userId
+        }).exec()
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
     }
-    // getAllSubscriptionsOfOneUserForAdmin: async (body) => {
-    //     let _ = require("lodash")
-    //     if (_.isEmpty(body.sortBy)) {
-    //         body.sortBy = ["createdAt"]
-    //     }
-    //     if (_.isEmpty(body.sortDesc)) {
-    //         body.sortDesc = [-1]
-    //     } else {
-    //         if (body.sortDesc[0] === false) {
-    //             body.sortDesc[0] = -1
-    //         }
-    //         if (body.sortDesc[0] === true) {
-    //             body.sortDesc[0] = 1
-    //         }
-    //     }
-    //     var sort = {}
-    //     sort[body.sortBy[0]] = body.sortDesc[0]
-    //     const pageNo = body.page
-    //     const skip = (pageNo - 1) * body.itemsPerPage
-    //     const limit = body.itemsPerPage
-    //     const data = await Subscription.find({
-    //         user: body.userId
-    //     }, {
-    //         _id: 1,
-    //         planName: 1,
-    //         planPrice: 1,
-
-    //     })
-    //         .populate("transactionId", {
-    //             _id: 1,
-
-    //         })
-    //         .sort(sort)
-    //         .skip(skip)
-    //         .limit(limit)
-    //         .exec()
-    //     const count = await Subscription.countDocuments({
-    //         user: body.userId
-    //     }).exec()
-    //     const maxPage = Math.ceil(count / limit)
-    //     return { data, count, maxPage }
-    // }
 }

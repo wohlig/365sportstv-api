@@ -191,6 +191,18 @@ export default {
                 }
             ])
         ])
-        return data[0].total - settled[0].total
+        let dataAmount, settledAmount
+        if (data.length > 0) {
+            dataAmount = data[0].total
+        } else {
+            dataAmount = 0
+        }
+        if (settled.length > 0) {
+            settledAmount = settled[0].total
+        } else {
+            settledAmount = 0
+        }
+
+        return dataAmount - settledAmount
     }
 }
