@@ -20,7 +20,7 @@ if (process.env.cron) {
                 item.daysRemaining = item.daysRemaining - 1
                 if (
                     item.daysRemaining <= 0 ||
-                    moment(item.endDate).utcOffset("+05:30") >=
+                    moment(item.endDate).utcOffset("+05:30") <=
                         moment().utcOffset("+5:30")
                 ) {
                     item.planStatus = "expired"
