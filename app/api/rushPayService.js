@@ -103,6 +103,7 @@ class RushPay {
                     message: "Plan not found"
                 }
             })
+            return
         }
         if (plan.price !== data.amount) {
             res.status(400).send({
@@ -112,6 +113,7 @@ class RushPay {
                     message: "Amount not matching"
                 }
             })
+            return
         }
         const userData = await User.findOne({
             _id: data.userId,
@@ -126,6 +128,7 @@ class RushPay {
                     message: "User not found"
                 }
             })
+            return
         }
         if (userData.planDetails) {
             if (userData.planDetails.planStatus === "active") {
@@ -136,6 +139,7 @@ class RushPay {
                         message: "User already has a plan"
                     }
                 })
+                return
             }
         }
         if (plan.price == 0) {
@@ -147,6 +151,7 @@ class RushPay {
                         message: "Free trial already used"
                     }
                 })
+                return
             }
             data.transactionType = "free"
         } else {
