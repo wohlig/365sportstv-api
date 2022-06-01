@@ -285,7 +285,7 @@ export default {
                             }
                         }
                     )
-    
+
                     var encrypted = CryptoJS.AES.encrypt(
                         JSON.stringify(streamSecurity.data.h5live.security),
                         crypto_key,
