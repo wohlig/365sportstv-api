@@ -307,10 +307,10 @@ export default {
         return data[0]
     },
 
-    updateData: async (id, data) => {
-        let obj = await Game.findOneAndUpdate({ _id: id }, data)
-        return obj
-    },
+    // updateData: async (id, data) => {
+    //     let obj = await Game.findOneAndUpdate({ _id: id }, data)
+    //     return obj
+    // },
     deleteData: async (id) => {
         let obj = await Game.findOneAndUpdate(
             { _id: id },
