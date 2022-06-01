@@ -164,38 +164,27 @@ export default {
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
-    getPastGames: async (body) => {
-        const pageNo = body.page
-        const skip = (pageNo - 1) * global.paginationLimit
-        const limit = global.paginationLimit
-        const [data, count] = await Promise.all([
-            Game.aggregate([
-                {
-                    $match: {
-                        status: { $in: ["disabled"] },
-                        startTime: { $lt: moment().toDate() }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        name: 1,
-                        description: 1,
-                        scoreId: 1
-                    }
+    getPastGames: async () => {
+        const limit = 10
+        const data = await Game.aggregate([
+            {
+                $match: {
+                    status: { $in: ["archived"] },
+                    startTime: { $lt: moment().toDate() }
                 }
-            ])
-                .sort({ startTime: -1 })
-                .skip(skip)
-                .limit(limit)
-                .exec(),
-            Game.countDocuments({
-                status: { $in: ["disabled"] },
-                startTime: { $lt: moment().toDate() }
-            }).exec()
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    scoreId: 1
+                }
+            }
         ])
-        const maxPage = Math.ceil(count / limit)
-        return { data, count, maxPage }
+            .limit(limit)
+            .exec()
+        return { data }
     },
     getOne: async (id, userId) => {
         const data = await Game.aggregate([
@@ -312,13 +301,7 @@ export default {
     //     return obj
     // },
     deleteData: async (id) => {
-        let obj = await Game.findOneAndUpdate(
-            { _id: id },
-            { status: "archived" },
-            {
-                new: true
-            }
-        )
+        let obj = await Game.deleteOne({ _id: id })
         return obj
     },
     searchAllGamesForAdmin: async (body) => {
