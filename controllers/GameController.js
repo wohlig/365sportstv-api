@@ -88,50 +88,50 @@ router.get(
     }
 )
 
-router.put(
-    "/:id",
-    authenticateAdmin,
-    ValidateRequest({
-        params: {
-            type: "object",
-            properties: {
-                id: {
-                    type: "string",
-                    format: "objectId"
-                }
-            },
-            required: ["id"]
-        },
-        body: {
-            type: "object",
-            properties: {
-                name: { type: "string" },
-                description: { type: "string" },
-                startTime: {
-                    type: "string"
-                },
-                streamId: {
-                    type: "string"
-                },
-                scoreId: {
-                    type: "string"
-                },
-                status: {
-                    type: "string"
-                }
-            }
-        }
-    }),
-    async (req, res) => {
-        try {
-            const data = await GameModel.updateData(req.params.id, req.body)
-            res.json(data)
-        } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
-        }
-    }
-)
+// router.put(
+//     "/:id",
+//     authenticateAdmin,
+//     ValidateRequest({
+//         params: {
+//             type: "object",
+//             properties: {
+//                 id: {
+//                     type: "string",
+//                     format: "objectId"
+//                 }
+//             },
+//             required: ["id"]
+//         },
+//         body: {
+//             type: "object",
+//             properties: {
+//                 name: { type: "string" },
+//                 description: { type: "string" },
+//                 startTime: {
+//                     type: "string"
+//                 },
+//                 streamId: {
+//                     type: "string"
+//                 },
+//                 scoreId: {
+//                     type: "string"
+//                 },
+//                 status: {
+//                     type: "string"
+//                 }
+//             }
+//         }
+//     }),
+//     async (req, res) => {
+//         try {
+//             const data = await GameModel.updateData(req.params.id, req.body)
+//             res.json(data)
+//         } catch (error) {
+//             console.error(error)
+//             res.status(500).json(error)
+//         }
+//     }
+// )
 router.delete(
     "/:id",
     authenticateAdmin,
