@@ -261,32 +261,49 @@ export default {
                 }
             }
         ]).exec()
-        const streamSecurity = await axios.post(
-            "https://bintu-splay.nanocosmos.de/secure/token",
-            {
-                streamname: data[0].streamId,
-                tag: "",
-                expires: ""
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-BINTU-APIKEY": process.env.BINTU_API_KEY
-                }
-            }
-        )
+        let streams = await Channel.findOne({ ingest: data[0].streamId })
+        let streamArray = []
+        let allStreams = []
+        if (streams) {
+            streamArray[0] = streams.ingest
+            streamArray[1] = streams.transcode1
+            streamArray[2] = streams.transcode2
+            streamArray[3] = streams.transcode3
+            await Promise.all(
+                streamArray.map(async (record) => {
+                    const streamSecurity = await axios.post(
+                        "https://bintu-splay.nanocosmos.de/secure/token",
+                        {
+                            streamname: record,
+                            tag: "",
+                            expires: ""
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-BINTU-APIKEY": process.env.BINTU_API_KEY
+                            }
+                        }
+                    )
 
-        var encrypted = CryptoJS.AES.encrypt(
-            JSON.stringify(streamSecurity.data.h5live.security),
-            crypto_key,
-            {
-                keySize: 128 / 8,
-                iv: crypto_key,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7
-            }
-        ).toString()
-        data[0].security = encrypted
+                    var encrypted = CryptoJS.AES.encrypt(
+                        JSON.stringify(streamSecurity.data.h5live.security),
+                        crypto_key,
+                        {
+                            keySize: 128 / 8,
+                            iv: crypto_key,
+                            mode: CryptoJS.mode.CBC,
+                            padding: CryptoJS.pad.Pkcs7
+                        }
+                    ).toString()
+                    allStreams.push({
+                        streamname: record,
+                        security: encrypted
+                    })
+                })
+            )
+        }
+        data[0].streams = allStreams
         return data[0]
     },
 
