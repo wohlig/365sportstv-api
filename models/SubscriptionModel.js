@@ -1,3 +1,4 @@
+import Subscription from "../mongooseModel/Subscription"
 import PlanModel from "./PlanModel"
 
 export default {
@@ -7,7 +8,33 @@ export default {
         if (plan == null) {
             return "Plan not found"
         }
+
         let subobj = {}
+        const subscription = await Subscription.findOne({
+            user: data.user,
+            planStatus: "active"
+        })
+        if (subscription != null) {
+            subobj.plan = plan._id
+            subobj.user = data.user
+            subobj.planName = plan.name
+            subobj.planPrice = plan.price
+            subobj.planDuration = plan.duration
+            subobj.transactionId = data._id
+            subobj.planStatus = "pre-active"
+            subobj.startDate = moment(subscription.endDate)
+                .add(1, "days")
+                .startOf("day")
+                .toDate()
+            subobj.endDate = moment(subscription.endDate)
+                .add(plan.duration, "days")
+                .endOf("day")
+                .toDate()
+            subobj.daysRemaining = plan.duration
+            let saveobj = new Subscription(subobj)
+            await saveobj.save()
+            return saveobj
+        }
         subobj.plan = plan._id
         subobj.user = data.user
         subobj.planName = plan.name
@@ -17,7 +44,7 @@ export default {
         subobj.planStatus = "active"
         subobj.startDate = moment().toDate()
         subobj.endDate = moment()
-            .add(plan.duration, "days")
+            .add(plan.duration - 1, "days")
             .endOf("day")
             .toDate()
         subobj.daysRemaining = plan.duration
@@ -40,7 +67,7 @@ export default {
                 user: user._id
             })
                 .populate("transactionId")
-                .sort({ createdAt: 1 })
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec(),

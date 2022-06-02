@@ -56,6 +56,7 @@ export default {
                         _id: 1,
                         name: 1,
                         description: 1,
+                        startTime: 1,
                         favorite: {
                             $cond: {
                                 if: { $eq: ["$favorite", null] },
@@ -74,7 +75,7 @@ export default {
                     }
                 }
             ])
-                .sort({ startTime: 1 })
+                .sort({ startTime: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec(),
@@ -134,6 +135,7 @@ export default {
                         _id: 1,
                         name: 1,
                         description: 1,
+                        startTime: 1,
                         favorite: {
                             $cond: {
                                 if: { $eq: ["$favorite", null] },
@@ -152,7 +154,7 @@ export default {
                     }
                 }
             ])
-                .sort({ startTime: 1 })
+                .sort({ startTime: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec(),
@@ -182,6 +184,7 @@ export default {
                 }
             }
         ])
+            .sort({ updatedAt: -1 })
             .limit(limit)
             .exec()
         return { data }
