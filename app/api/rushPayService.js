@@ -130,17 +130,19 @@ class RushPay {
             })
             return
         }
-        if (userData.planDetails) {
-            if (userData.planDetails.planStatus === "active") {
-                res.status(400).send({
-                    status: 400,
-                    message: "Bad Request",
-                    error: {
-                        message: "User already has a plan"
-                    }
-                })
-                return
-            }
+        const subscription = await Subscription.findOne({
+            user: data.userId,
+            planStatus: "pre-active"
+        })
+        if (subscription != null) {
+            res.status(400).send({
+                status: 400,
+                message: "Bad Request",
+                error: {
+                    message: "User already subscribed"
+                }
+            })
+            return
         }
         if (plan.price == 0) {
             if (userData.freeTrialUsed) {
