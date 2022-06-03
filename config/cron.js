@@ -40,6 +40,32 @@ if (process.env.cron) {
                 ])
             })
         }
+        const preActive = await Subscription.find({
+            status: "pre-active"
+        })
+        if (preActive.length > 0) {
+            _.each(preActive, async (item) => {
+                if (
+                    moment(item.startDate).utcOffset("+05:30") <=
+                    moment().utcOffset("+5:30")
+                ) {
+                    item.planStatus = "active"
+                }
+                let userSub = {}
+                userSub.planDetails = item
+                await Promise.all([
+                    SubscriptionModel.updateData(item._id, item),
+                    User.findOneAndUpdate(
+                        {
+                            _id: item.user,
+                            status: "enabled",
+                            mobileVerified: true
+                        },
+                        userSub
+                    )
+                ])
+            })
+        }
     })
     cron.schedule("*/5 * * * *", async () => {
         console.log("rush process")
