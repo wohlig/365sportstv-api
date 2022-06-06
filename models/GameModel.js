@@ -180,7 +180,8 @@ export default {
                     _id: 1,
                     name: 1,
                     description: 1,
-                    scoreId: 1
+                    scoreId: 1,
+                    updatedAt: 1
                 }
             }
         ])
