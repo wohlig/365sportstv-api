@@ -4,7 +4,7 @@ const router = Router()
 // create game
 router.post(
     "/create",
-    authenticateAdmin,
+    authenticateMaster,
     ValidateRequest({
         body: {
             type: "object",
@@ -88,9 +88,53 @@ router.get(
     }
 )
 
+router.put(
+    "/:id",
+    authenticateMaster,
+    ValidateRequest({
+        params: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    format: "objectId"
+                }
+            },
+            required: ["id"]
+        },
+        body: {
+            type: "object",
+            properties: {
+                name: { type: "string" },
+                description: { type: "string" },
+                startTime: {
+                    type: "string"
+                },
+                streamId: {
+                    type: "string"
+                },
+                scoreId: {
+                    type: "string"
+                },
+                status: {
+                    type: "string"
+                }
+            }
+        }
+    }),
+    async (req, res) => {
+        try {
+            const data = await GameModel.updateData(req.params.id, req.body)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 router.delete(
     "/:id",
-    authenticateAdmin,
+    authenticateMaster,
     ValidateRequest({
         params: {
             type: "object",
@@ -114,7 +158,7 @@ router.delete(
         }
     }
 )
-router.post("/searchAllGamesForAdmin", authenticateAdmin, async (req, res) => {
+router.post("/searchAllGamesForAdmin", authenticateMaster, async (req, res) => {
     try {
         const data = await GameModel.searchAllGamesForAdmin(req.body)
         res.json(data)
@@ -123,7 +167,7 @@ router.post("/searchAllGamesForAdmin", authenticateAdmin, async (req, res) => {
         res.status(500).json(error)
     }
 })
-router.get("/getOneGameForAdmin/:id", authenticateAdmin, async (req, res) => {
+router.get("/getOneGameForAdmin/:id", authenticateMaster, async (req, res) => {
     try {
         const data = await GameModel.getOneGameForAdmin(req.params.id)
         res.json(data)
@@ -134,7 +178,7 @@ router.get("/getOneGameForAdmin/:id", authenticateAdmin, async (req, res) => {
 })
 router.put(
     "/updateOneGameForAdmin/:id",
-    authenticateAdmin,
+    authenticateMaster,
     async (req, res) => {
         try {
             const data = await GameModel.updateOneGameForAdmin(
@@ -150,7 +194,7 @@ router.put(
 )
 router.put(
     "/updateGameAndFavoriteStatus/:id",
-    authenticateAdmin,
+    authenticateMaster,
     async (req, res) => {
         try {
             const data = await GameModel.updateGameAndFavoriteStatus(
