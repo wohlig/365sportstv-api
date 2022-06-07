@@ -13,7 +13,7 @@ if (process.env.cron) {
     cron.schedule("0 0 * * *", async () => {
         console.log("running a task every day at midnight")
         const data = await Subscription.find({
-            status: "active"
+            planStatus: "active"
         })
         if (data.length > 0) {
             _.each(data, async (item) => {
@@ -41,7 +41,7 @@ if (process.env.cron) {
             })
         }
         const preActive = await Subscription.find({
-            status: "pre-active"
+            planStatus: "pre-active"
         })
         if (preActive.length > 0) {
             _.each(preActive, async (item) => {
