@@ -42,6 +42,11 @@ export default {
                     price: 1,
                     duration: 1
                 }
+            },
+            {
+                $sort: {
+                    price: 1
+                }
             }
         ])
         return data
