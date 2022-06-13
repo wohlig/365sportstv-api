@@ -1,7 +1,7 @@
 import { validateAdditionalItems } from "ajv/dist/vocabularies/applicator/additionalItems"
 import { promised } from "q"
 import Subscription from "../mongooseModel/Subscription"
-const rush = require("../app/cron/rushProcessing")
+const paymentGateway = require("../app/cron/paymentGatewayProcessing")
 
 /**
  * Add Cron Here. Refer https://www.npmjs.com/package/node-cron
@@ -68,9 +68,9 @@ if (process.env.cron) {
         }
     })
     cron.schedule("*/5 * * * *", async () => {
-        console.log("rush process")
+        console.log("paymentGateway process")
         try {
-            rush.process()
+            paymentGateway.process()
         } catch (err) {}
     })
     // cron.schedule("*/20 * * * *", async () => {

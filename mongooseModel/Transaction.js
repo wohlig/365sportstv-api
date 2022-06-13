@@ -3,7 +3,7 @@ var schema = new Schema(
         user: { type: Schema.Types.ObjectId, ref: "User" },
         plan: { type: Schema.Types.ObjectId, ref: "Plan" },
         amount: { type: Number },
-        instamojo_purpose: { type: String },
+        order_id: { type: String },
         status: {
             type: String,
             enum: ["pending", "completed", "cancelled"],
