@@ -26,8 +26,7 @@ const process = async () => {
             ])
             if (pendingTransactions && pendingTransactions.length > 0) {
                 _.map(pendingTransactions, (transaction) => {
-                    apexpay
-                        .verifyApexpay(transaction.order_id)
+                    apexpay.verifyApexpay(transaction.order_id)
                 })
                 noOfPages++
             }

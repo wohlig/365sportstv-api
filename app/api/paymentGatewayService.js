@@ -819,43 +819,48 @@ class Payment {
     async SuccessTransactionFunction(data) {
         Transaction.findOne({
             order_id: data.order_id
-        }).then(async (transaction) => {
-            if (!_.isEmpty(transaction) && transaction.status === "pending") {
-                if (transaction.amount == data.transactionAmount) {
-                    transaction.status = "completed"
-                    transaction.paymentGatewayResponse = data.response
-                    await Promise.all[
-                        (Transaction.findOneAndUpdate(
-                            {
-                                order_id: data.order_id
-                            },
-                            transaction
-                        ),
-                        SubscriptionModel.saveData(transaction))
-                    ]
+        })
+            .then(async (transaction) => {
+                if (
+                    !_.isEmpty(transaction) &&
+                    transaction.status === "pending"
+                ) {
+                    if (transaction.amount == data.transactionAmount) {
+                        transaction.status = "completed"
+                        transaction.paymentGatewayResponse = data.response
+                        await Promise.all[
+                            (Transaction.findOneAndUpdate(
+                                {
+                                    order_id: data.order_id
+                                },
+                                transaction
+                            ),
+                            SubscriptionModel.saveData(transaction))
+                        ]
+                    }
                 }
-            }
-        }).then(async () => {
-            const user = await User.findOne({
-                _id: data.userId
             })
-            let objToGenerateAccessToken = {
-                _id: user._id,
-                name: user.name,
-                mobile: user.mobile,
-                userType: user.userType,
-                currentPlan: user.planDetails
-            }
-            var token = jwt.sign(objToGenerateAccessToken, jwt_key)
-            // res.status(200).json({ data: obj, accessToken: token })
-        })
-        .catch((err) => {
-            res.status(500).send({
-                status: 500,
-                message: "Internal server error",
-                error: err
+            .then(async () => {
+                const user = await User.findOne({
+                    _id: data.userId
+                })
+                let objToGenerateAccessToken = {
+                    _id: user._id,
+                    name: user.name,
+                    mobile: user.mobile,
+                    userType: user.userType,
+                    currentPlan: user.planDetails
+                }
+                var token = jwt.sign(objToGenerateAccessToken, jwt_key)
+                // res.status(200).json({ data: obj, accessToken: token })
             })
-        })
+            .catch((err) => {
+                res.status(500).send({
+                    status: 500,
+                    message: "Internal server error",
+                    error: err
+                })
+            })
     }
     async FailureTransactionFunction(data) {
         Transaction.findOne({

@@ -137,7 +137,7 @@ router.delete(
 )
 router.get(
     "/create",
-    require("../app/api/paymentGatewayService").initiatePayment,
+    require("../app/api/paymentGatewayService").initiatePayment
 )
 // router.post(
 //     "/create",
