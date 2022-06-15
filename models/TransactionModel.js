@@ -127,9 +127,11 @@ export default {
                         },
                         updatedAt: 1,
                         transactionType: 1,
+                        transactionWay: 1,
+                        currency: 1,
                         paymentGatewayName: 1,
                         paymentGatewayResponse: 1,
-                        instamojo_purpose: 1
+                        order_id: 1
                     }
                 }
             ])
