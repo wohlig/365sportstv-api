@@ -63,9 +63,9 @@ export default {
         return obj
     },
     getOneForAdmin: async (id) => {
+        console.log(id)
         let obj = await Transaction.findOne({
-            _id: id,
-            status: "completed"
+            _id: id
         })
             .populate("plan")
             .populate("user")

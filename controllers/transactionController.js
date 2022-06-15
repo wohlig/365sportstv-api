@@ -48,6 +48,7 @@ router.get(
         }
     }),
     async (req, res) => {
+        console.log("ONE")
         try {
             const data = await TransactionModel.getOne(req.params.id)
             res.json(data)
@@ -73,6 +74,7 @@ router.get(
         }
     }),
     async (req, res) => {
+        console.log("TWO")
         try {
             const data = await TransactionModel.getOneForAdmin(req.params.id)
             res.json(data)
