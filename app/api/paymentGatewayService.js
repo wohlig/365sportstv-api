@@ -5,6 +5,7 @@ import Plan from "../../mongooseModel/Plan.js"
 import User from "../../mongooseModel/User.js"
 import SubscriptionModel from "../../models/SubscriptionModel.js"
 import Transaction from "../../mongooseModel/Transaction"
+import axios from "axios"
 const sha256 = require("./sha256")
 class Payment {
     callApi(httpMethod, url, body, headers) {
@@ -30,6 +31,7 @@ class Payment {
             const transactionObjToSave = {
                 user: data.userId,
                 amount: data.amount,
+                plan: data.plan,
                 order_id: orderId,
                 currency: "INR",
                 status: "pending",
@@ -725,7 +727,6 @@ class Payment {
                 apexpay
                     .callApi("POST", url, body, headers)
                     .then((response) => {
-                        console.log("status api response --> ", response)
                         deferred.resolve(response)
                     })
                     .catch((error) => {
@@ -816,7 +817,8 @@ class Payment {
             console.log("error while fetching apexpay payments", err)
         }
     }
-    async SuccessTransactionFunction(data) {
+    async SuccessTransactionFunction(dat) {
+        var data = dat
         Transaction.findOne({
             order_id: data.order_id
         })
@@ -828,41 +830,47 @@ class Payment {
                     if (transaction.amount == data.transactionAmount) {
                         transaction.status = "completed"
                         transaction.paymentGatewayResponse = data.response
-                        await Promise.all[
-                            (Transaction.findOneAndUpdate(
-                                {
-                                    order_id: data.order_id
-                                },
-                                transaction
-                            ),
-                            SubscriptionModel.saveData(transaction))
-                        ]
+                        await Transaction.findOneAndUpdate(
+                            {
+                                order_id: data.order_id
+                            },
+                            transaction
+                        )
+                        await SubscriptionModel.saveData(transaction)
+                        const user = await User.findOne({
+                            _id: transaction.user
+                        })
+
+                        let objToGenerateAccessToken = {
+                            _id: user._id,
+                            name: user.name,
+                            mobile: user.mobile,
+                            userType: user.userType,
+                            currentPlan: user.planDetails
+                        }
+                        var token = jwt.sign(objToGenerateAccessToken, jwt_key)
+                        const socket_url = env["SOCKET_URL"]
+                        let obj = {}
+                        obj.roomName = "transaction" + transaction.user
+                        obj.eventName = "success-transaction"
+                        obj.data = {
+                            transactionId: transaction._id,
+                            accessToken: token
+                        }
+                        axios.post(`${socket_url}/callSocket`, obj, {
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        })
                     }
                 }
             })
-            .then(async () => {
-                const user = await User.findOne({
-                    _id: data.userId
-                })
-                let objToGenerateAccessToken = {
-                    _id: user._id,
-                    name: user.name,
-                    mobile: user.mobile,
-                    userType: user.userType,
-                    currentPlan: user.planDetails
-                }
-                var token = jwt.sign(objToGenerateAccessToken, jwt_key)
-                // res.status(200).json({ data: obj, accessToken: token })
-            })
             .catch((err) => {
-                res.status(500).send({
-                    status: 500,
-                    message: "Internal server error",
-                    error: err
-                })
+                console.log("ERROR", err)
             })
     }
-    async FailureTransactionFunction(data) {
+    async FailureTransactionFunction(dat) {
+        var data = dat
         Transaction.findOne({
             order_id: data.order_id
         }).then(async (transaction) => {
@@ -876,6 +884,18 @@ class Payment {
                         },
                         transaction
                     )
+                    const socket_url = env["SOCKET_URL"]
+                    let obj = {}
+                    obj.roomName = "transaction" + transaction.user
+                    obj.eventName = "failure-transaction"
+                    obj.data = {
+                        transactionId: transaction._id
+                    }
+                    axios.post(`${socket_url}/callSocket`, obj, {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    })
                 }
             }
         })

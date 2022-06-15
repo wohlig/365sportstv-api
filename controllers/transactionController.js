@@ -48,7 +48,6 @@ router.get(
         }
     }),
     async (req, res) => {
-        console.log("ONE")
         try {
             const data = await TransactionModel.getOne(req.params.id)
             res.json(data)
@@ -74,7 +73,6 @@ router.get(
         }
     }),
     async (req, res) => {
-        console.log("TWO")
         try {
             const data = await TransactionModel.getOneForAdmin(req.params.id)
             res.json(data)
@@ -148,12 +146,8 @@ router.get(
 // )
 router.post("/apexpay/redirecturl", async (req, res) => {
     try {
-        console.log("apexpay post")
-        console.log("req.body query", req.query)
-        console.log("req.body", req.body)
         let one = req.query.p.split("?")
         let payid = one[0]
-        console.log("payid ", payid)
         if (payid) {
             require("../app/api/paymentGatewayService").verifyApexpay(payid)
         }
