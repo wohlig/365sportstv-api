@@ -5,6 +5,7 @@ import Plan from "../../mongooseModel/Plan.js"
 import User from "../../mongooseModel/User.js"
 import SubscriptionModel from "../../models/SubscriptionModel.js"
 import Transaction from "../../mongooseModel/Transaction"
+const sha256 = require("./sha256")
 class Payment {
     callApi(httpMethod, url, body, headers) {
         let deferred = q.defer()
@@ -30,7 +31,6 @@ class Payment {
                 user: data.userId,
                 amount: data.amount,
                 order_id: orderId,
-                // currency: ObjectId("5eb153f72a445e15b4f45894"),
                 currency: "INR",
                 status: "pending",
                 transactionType: "deposit",
@@ -40,7 +40,6 @@ class Payment {
                 //     ip: "139.59.38.31",
                 //     country: "IN"
                 // },
-                // paymentGatewayName: "apexpay"
                 paymentGatewayName: "apexpay"
             }
 
@@ -88,7 +87,7 @@ class Payment {
                 // { name: 1, email: 1, _id: 1, mobileNo: 1 }
             )
             if (!_.isEmpty(user)) {
-                let randomMobileNo = crypto.randomInt(7000000000, 9999999999)
+                let randomMobileNo = _.random(7000000000, 9999999999)
                 const transactionDetails = {
                     purpose: transData.order_id,
                     amount: transData.amount * 100,
@@ -100,6 +99,7 @@ class Payment {
                         "/Transaction/apexpay/redirecturl?p=" +
                         transData.order_id
                 }
+                // const consts = consts
                 deferred.resolve(`<!DOCTYPE html
                     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
                 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -290,7 +290,7 @@ class Payment {
                 
                         /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
                 
-                        if (typeof module != 'undefined' && module.exports) module.exports = Sha256; // = export default Sha256
+                        if (typeof module != 'undefined' && module.exports) module.exports = Sha256(); // = export default Sha256
                     </script>
                     <style type="text/css">
                         body {
@@ -343,7 +343,6 @@ class Payment {
                             width: 98%;
                             height: 15px;
                             padding: 6px 7px;
-                            padding: 6px\9;
                             margin-left: 10px;
                             font-size: 12px;
                             font-family: 'Titillium Web', sans-serif;
@@ -426,106 +425,105 @@ class Payment {
                         }
                     </style>
                 </head>
-                
                 <body onload="javascript:submitForm()" style="display: none">
-                    <div class="new">
-                        <input type="text" name="PAY_ID" class="signuptextfield" style="display:none" id="hashkey"
-                            value="${consts.apexpaySalt}" autocomplete="off" />
-                        <form method="post">
-                            <table width="500" border="0" align="center" cellpadding="0" cellspacing="0" class="gradientbg">
-                                <tr style="display:none">
-                                    <td colspan="3" align="center" valign="middle"></td>
-                
-                                </tr>
-                                <tr>
-                                    <td colspan="3" align="center" valign="middle"
-                                        class="signup-headingbg borderleftradius borderrightradius">Checkout Page</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td align="right" valign="middle">&nbsp;</td>
-                                    <td align="center" valign="middle">&nbsp;</td>
-                                    <td align="center" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">PAY ID: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="PAY_ID"
-                                            class="signuptextfield" value="${consts.apexpayPayId}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">ORDER ID: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" id="ORDER_ID" name="ORDER_ID"
-                                            class="signuptextfield" value="${transactionDetails.purpose}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">AMOUNT: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="AMOUNT"
-                                            class="signuptextfield" value="${transactionDetails.amount}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">TXNTYPE: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="TXNTYPE"
-                                            class="signuptextfield" value="SALE" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER EMAILID: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="CUST_EMAIL"
-                                            class="signuptextfield" value="${user.email}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER NAME: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="CUST_NAME"
-                                            class="signuptextfield" value="${user.name}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER phone: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="CUST_PHONE"
-                                            class="signuptextfield" value="${randomMobileNo}" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">CURRENCY CODE: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="CURRENCY_CODE"
-                                            class="signuptextfield" value="356" autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                
-                                    <td width="28%" align="right" valign="middle" class="labelfont">RETURN URL: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="RETURN_URL"
-                                            class="signuptextfield" value="${transactionDetails.sportsTv_url}"
-                                            autocomplete="off" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr style="display:none">
-                                    <td width="28%" align="right" valign="middle" class="labelfont">HASH: </td>
-                                    <td width="65%" align="left" valign="middle"><input type="text" name="HASH"
-                                            class="signuptextfield11" value="" autocomplete="off" id="hash" /></td>
-                                    <td width="7%" align="left" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" align="center" valign="middle">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <!-- <td width="50%" align="right" ></td> -->
-                                    <td colspan="3" align="center" valign="middle">
-                                        <input type="submit" id="button" class="signupbutton" value="Pay Now"
-                                            onclick="javascript:submitForm()" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" align="center" valign="middle">&nbsp;</td>
-                                </tr>
-                            </table>
-                        </form>
-                    </div>
-                </body>
+                <div class="new">
+                    <input type="text" name="PAY_ID" class="signuptextfield" style="display:none" id="hashkey"
+                        value="${consts.apexpaySalt}" autocomplete="off" />
+                    <form method="post">
+                        <table width="500" border="0" align="center" cellpadding="0" cellspacing="0" class="gradientbg">
+                            <tr style="display:none">
+                                <td colspan="3" align="center" valign="middle"></td>
+            
+                            </tr>
+                            <tr>
+                                <td colspan="3" align="center" valign="middle"
+                                    class="signup-headingbg borderleftradius borderrightradius">Checkout Page</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td align="right" valign="middle">&nbsp;</td>
+                                <td align="center" valign="middle">&nbsp;</td>
+                                <td align="center" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">PAY ID: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="PAY_ID"
+                                        class="signuptextfield" value="${consts.apexpayPayId}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">ORDER ID: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" id="ORDER_ID" name="ORDER_ID"
+                                        class="signuptextfield" value="${transactionDetails.purpose}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">AMOUNT: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="AMOUNT"
+                                        class="signuptextfield" value="${transactionDetails.amount}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">TXNTYPE: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="TXNTYPE"
+                                        class="signuptextfield" value="SALE" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+            
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER EMAILID: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="CUST_EMAIL"
+                                        class="signuptextfield" value="${transactionDetails.email}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER NAME: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="CUST_NAME"
+                                        class="signuptextfield" value="${user.name}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">CUSTOMER phone: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="CUST_PHONE"
+                                        class="signuptextfield" value="${randomMobileNo}" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">CURRENCY CODE: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="CURRENCY_CODE"
+                                        class="signuptextfield" value="356" autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+            
+                                <td width="28%" align="right" valign="middle" class="labelfont">RETURN URL: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="RETURN_URL"
+                                        class="signuptextfield" value="${transactionDetails.sportsTv_url}"
+                                        autocomplete="off" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr style="display:none">
+                                <td width="28%" align="right" valign="middle" class="labelfont">HASH: </td>
+                                <td width="65%" align="left" valign="middle"><input type="text" name="HASH"
+                                        class="signuptextfield11" value="" autocomplete="off" id="hash" /></td>
+                                <td width="7%" align="left" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" align="center" valign="middle">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <!-- <td width="50%" align="right" ></td> -->
+                                <td colspan="3" align="center" valign="middle">
+                                    <input type="submit" id="button" class="signupbutton" value="Pay Now"
+                                        onclick="javascript:submitForm()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" align="center" valign="middle">&nbsp;</td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </body>
                 </html>`)
             } else {
                 throw { message: "User not found" }
@@ -537,17 +535,7 @@ class Payment {
         return deferred.promise
     }
     async initiatePayment(req, res) {
-        let data = req.body
-        if (data.userId !== req.user._id) {
-            res.status(400).send({
-                status: 400,
-                message: "Bad Request",
-                error: {
-                    message: "Invalid Request"
-                }
-            })
-            return
-        }
+        let data = req.query
         const plan = await Plan.findOne({ _id: data.plan })
         if (plan == null) {
             res.status(400).send({
@@ -559,7 +547,7 @@ class Payment {
             })
             return
         }
-        if (plan.price !== data.amount) {
+        if (plan.price != data.amount) {
             res.status(400).send({
                 status: 400,
                 message: "Bad Request",
@@ -653,8 +641,8 @@ class Payment {
             try {
                 let PG = new Payment()
                 let reqData = {}
-                let data = req.body
-                data.userId = req.user._id
+                let data = req.query
+                // data.userId = req.user._id
                 reqData = data
                 PG.createTransaction(reqData)
                     .then((transactionResponse) => {
@@ -722,7 +710,7 @@ class Payment {
                     consts.apexpayPayId
                 }~TXNTYPE=${txnType}`
                 inputString += consts.apexpaySalt
-                let hash = Sha256.hash(inputString)
+                let hash = sha256.hash(inputString)
                 hash = hash.toUpperCase()
                 let body = {
                     PAY_ID: consts.apexpayPayId,
@@ -763,7 +751,7 @@ class Payment {
                 .map((key) => key + "=" + sorted_object[key])
                 .join("~")
             hashString += consts.apexpaySalt
-            let calculatedHash = Sha256.hash(hashString).toUpperCase()
+            let calculatedHash = sha256.hash(hashString).toUpperCase()
             let requestParams = {}
             let amount = response.AMOUNT ? response.AMOUNT / 100 : 0
             requestParams.order_id = order_id
@@ -810,6 +798,12 @@ class Payment {
                         response.STATUS.toLowerCase() == "denied by risk") ||
                     (response &&
                         response.STATUS &&
+                        response.STATUS.toLowerCase() == "invalid") ||
+                    (response &&
+                        response.STATUS &&
+                        response.STATUS.toLowerCase() == "user inactive") ||
+                    (response &&
+                        response.STATUS &&
                         response.STATUS.toLowerCase() == "denied due to fraud")
                 ) {
                     apexpay.FailureTransactionFunction(requestParams)
@@ -825,11 +819,11 @@ class Payment {
     async SuccessTransactionFunction(data) {
         Transaction.findOne({
             order_id: data.order_id
-        }).then((transaction) => {
+        }).then(async (transaction) => {
             if (!_.isEmpty(transaction) && transaction.status === "pending") {
                 if (transaction.amount == data.transactionAmount) {
                     transaction.status = "completed"
-                    transaction.paymentGatewayResponse = data
+                    transaction.paymentGatewayResponse = data.response
                     await Promise.all[
                         (Transaction.findOneAndUpdate(
                             {
@@ -841,37 +835,36 @@ class Payment {
                     ]
                 }
             }
+        }).then(async () => {
+            const user = await User.findOne({
+                _id: data.userId
+            })
+            let objToGenerateAccessToken = {
+                _id: user._id,
+                name: user.name,
+                mobile: user.mobile,
+                userType: user.userType,
+                currentPlan: user.planDetails
+            }
+            var token = jwt.sign(objToGenerateAccessToken, jwt_key)
+            // res.status(200).json({ data: obj, accessToken: token })
         })
-        // .then(async () => {
-        //     const user = await User.findOne({
-        //         _id: data.userId
-        //     })
-        //     let objToGenerateAccessToken = {
-        //         _id: user._id,
-        //         name: user.name,
-        //         mobile: user.mobile,
-        //         userType: user.userType,
-        //         currentPlan: user.planDetails
-        //     }
-        //     var token = jwt.sign(objToGenerateAccessToken, jwt_key)
-        //     res.status(200).json({ data: obj, accessToken: token })
-        // })
-        // .catch((err) => {
-        //     res.status(500).send({
-        //         status: 500,
-        //         message: "Internal server error",
-        //         error: err
-        //     })
-        // })
+        .catch((err) => {
+            res.status(500).send({
+                status: 500,
+                message: "Internal server error",
+                error: err
+            })
+        })
     }
     async FailureTransactionFunction(data) {
         Transaction.findOne({
             order_id: data.order_id
-        }).then((transaction) => {
+        }).then(async (transaction) => {
             if (!_.isEmpty(transaction) && transaction.status === "pending") {
                 if (transaction.amount == data.transactionAmount) {
                     transaction.status = "cancelled"
-                    transaction.paymentGatewayResponse = data
+                    transaction.paymentGatewayResponse = data.response
                     await Transaction.findOneAndUpdate(
                         {
                             order_id: data.order_id

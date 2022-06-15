@@ -9,7 +9,7 @@ var schema = new Schema(
             enum: ["pending", "completed", "cancelled"],
             default: "pending"
         },
-        currency: { type: Schema.Types.ObjectId },
+        currency: { type: String },
         transactionType: { type: String, enum: ["deposit", "free"] },
         transactionWay: { type: String },
         paymentGatewayName: { type: String },

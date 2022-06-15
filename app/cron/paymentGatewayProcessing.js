@@ -28,12 +28,6 @@ const process = async () => {
                 _.map(pendingTransactions, (transaction) => {
                     apexpay
                         .verifyApexpay(transaction.order_id)
-                        .then((data) => {
-                            console.log(data)
-                        })
-                        .catch((err) => {
-                            console.log(err)
-                        })
                 })
                 noOfPages++
             }

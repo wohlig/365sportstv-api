@@ -135,11 +135,15 @@ router.delete(
         }
     }
 )
-router.post(
+router.get(
     "/create",
-    authenticateUser,
-    require("../app/api/paymentGatewayService").initiatePayment
+    require("../app/api/paymentGatewayService").initiatePayment,
 )
+// router.post(
+//     "/create",
+//     authenticateUser,
+//     require("../app/api/paymentGatewayService").initiatePayment
+// )
 router.post("/apexpay/redirecturl", async (req, res) => {
     try {
         console.log("apexpay post")

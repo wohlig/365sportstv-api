@@ -20,3 +20,5 @@ class GetID {
         ].join("")
     }
 }
+
+module.exports = new GetID()
