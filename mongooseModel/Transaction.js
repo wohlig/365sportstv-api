@@ -3,13 +3,13 @@ var schema = new Schema(
         user: { type: Schema.Types.ObjectId, ref: "User" },
         plan: { type: Schema.Types.ObjectId, ref: "Plan" },
         amount: { type: Number },
-        instamojo_purpose: { type: String },
+        order_id: { type: String },
         status: {
             type: String,
             enum: ["pending", "completed", "cancelled"],
             default: "pending"
         },
-        currency: { type: Schema.Types.ObjectId },
+        currency: { type: String },
         transactionType: { type: String, enum: ["deposit", "free"] },
         transactionWay: { type: String },
         paymentGatewayName: { type: String },

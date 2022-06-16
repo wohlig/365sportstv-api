@@ -50,6 +50,7 @@ export default {
         subobj.daysRemaining = plan.duration
         let userSub = {}
         userSub.planDetails = subobj
+        userSub.freeTrialUsed = true
         await User.findOneAndUpdate(
             { _id: data.user, status: "enabled", mobileVerified: true },
             userSub

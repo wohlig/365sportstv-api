@@ -63,9 +63,9 @@ export default {
         return obj
     },
     getOneForAdmin: async (id) => {
+        console.log(id)
         let obj = await Transaction.findOne({
-            _id: id,
-            status: "completed"
+            _id: id
         })
             .populate("plan")
             .populate("user")
@@ -126,14 +126,17 @@ export default {
                             mobile: 1
                         },
                         updatedAt: 1,
+                        createdAt: 1,
                         transactionType: 1,
+                        transactionWay: 1,
+                        currency: 1,
                         paymentGatewayName: 1,
                         paymentGatewayResponse: 1,
-                        instamojo_purpose: 1
+                        order_id: 1
                     }
                 }
             ])
-                .sort(sort)
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec(),

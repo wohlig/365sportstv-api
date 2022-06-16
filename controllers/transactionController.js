@@ -135,11 +135,31 @@ router.delete(
         }
     }
 )
-router.post(
+router.get(
     "/create",
-    authenticateUser,
-    require("../app/api/rushPayService").initiatePayment
+    require("../app/api/paymentGatewayService").initiatePayment
 )
+// router.post(
+//     "/create",
+//     authenticateUser,
+//     require("../app/api/paymentGatewayService").initiatePayment
+// )
+router.post("/apexpay/redirecturl", async (req, res) => {
+    try {
+        let one = req.query.p.split("?")
+        let payid = one[0]
+        if (payid) {
+            require("../app/api/paymentGatewayService").verifyApexpay(payid)
+        }
+        res.send(
+            "<head><script>window.close()</script></head><body>Thank You</body>"
+        )
+    } catch (err) {
+        res.send(
+            "<head><script>window.close()</script></head><body>Thank You</body>"
+        )
+    }
+})
 router.post(
     "/getAllTransactionsForAdmin",
     authenticateAdmin,
