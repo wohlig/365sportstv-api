@@ -601,11 +601,8 @@ class Payment {
             }
             data.transactionType = "free"
             data.status = "completed"
-            userData.freeTrialUsed = true
-            await User.findOneAndUpdate(
-                { _id: data.userId, status: "enabled", mobileVerified: true },
-                userData
-            )
+            let orderId = generateID.getId()
+            data.order_id = orderId
             data.user = data.userId
             let obj = new Transaction(data)
             await obj
@@ -635,11 +632,6 @@ class Payment {
                     })
                 })
         } else {
-            userData.freeTrialUsed = true
-            await User.findOneAndUpdate(
-                { _id: data.userId, status: "enabled", mobileVerified: true },
-                userData
-            )
             try {
                 let PG = new Payment()
                 let reqData = {}

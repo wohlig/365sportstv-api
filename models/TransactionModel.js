@@ -126,6 +126,7 @@ export default {
                             mobile: 1
                         },
                         updatedAt: 1,
+                        createdAt: 1,
                         transactionType: 1,
                         transactionWay: 1,
                         currency: 1,
@@ -135,7 +136,7 @@ export default {
                     }
                 }
             ])
-                .sort(sort)
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec(),
