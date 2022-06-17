@@ -40,7 +40,12 @@ export default {
             const daysRemaining = plan.duration + subscription.daysRemaining
             await User.findOneAndUpdate(
                 { _id: data.user, status: "enabled", mobileVerified: true },
-                { $set: { "planDetails.endDate": endDate, "planDetails.daysRemaining": daysRemaining } }
+                {
+                    $set: {
+                        "planDetails.endDate": endDate,
+                        "planDetails.daysRemaining": daysRemaining
+                    }
+                }
             )
             return saveobj
         }
