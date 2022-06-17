@@ -746,6 +746,7 @@ class Payment {
             hashString += consts.apexpaySalt
             let calculatedHash = sha256.hash(hashString).toUpperCase()
             let requestParams = {}
+            console.log("RESPONSE", response)
             let amount = response.AMOUNT ? response.AMOUNT / 100 : 0
             requestParams.order_id = order_id
             requestParams.transactionAmount = amount

@@ -1,7 +1,7 @@
 module.exports = {
-    apexpayURL: "https://secure.qikpay.co.in/pgui/jsp/paymentrequest",
-    apexpaySalt: "da38219656f047a9",
-    apexpayPayId: 1143511111153905,
-    apexPayStatusURL: "https://secure.qikpay.co.in/pgws/transact",
-    api: "http://localhost:3002"
+    apexpayURL: env["APEXPAY_URL"],
+    apexpaySalt: env["APEXPAY_SALT"],
+    apexpayPayId: env["APEXPAY_PAYID"],
+    apexPayStatusURL: env["APEXPAY_STATUSURL"],
+    api: env["API_URL"]
 }
