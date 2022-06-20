@@ -15,39 +15,127 @@ export default {
             planStatus: "active"
         })
         if (subscription != null) {
-            subobj.plan = plan._id
-            subobj.user = data.user
-            subobj.planName = plan.name
-            subobj.planPrice = plan.price
-            subobj.planDuration = plan.duration
-            subobj.transactionId = data._id
-            subobj.planStatus = "pre-active"
-            subobj.startDate = moment(subscription.endDate)
-                .add(1, "days")
-                .startOf("day")
-                .toDate()
-            subobj.endDate = moment(subscription.endDate)
-                .add(plan.duration, "days")
-                .endOf("day")
-                .toDate()
-            subobj.daysRemaining = plan.duration
-            let saveobj = new Subscription(subobj)
-            await saveobj.save()
-            let endDate = moment(subscription.endDate)
-                .add(plan.duration - 1, "days")
-                .endOf("day")
-                .toDate()
-            const daysRemaining = plan.duration + subscription.daysRemaining
-            await User.findOneAndUpdate(
-                { _id: data.user, status: "enabled", mobileVerified: true },
-                {
-                    $set: {
-                        "planDetails.endDate": endDate,
-                        "planDetails.daysRemaining": daysRemaining
+            const presubscription = await Subscription.find({
+                user: data.user,
+                planStatus: "pre-active"
+            })
+                .sort({ _id: -1 })
+                .limit(1)
+            if (presubscription.length > 0) {
+                subobj.plan = plan._id
+                subobj.user = data.user
+                subobj.planName = plan.name
+                subobj.planPrice = plan.price
+                subobj.planDuration = plan.duration
+                subobj.transactionId = data._id
+                subobj.planStatus = "pre-active"
+                subobj.startDate = moment(presubscription[0].endDate)
+                    .add(1, "days")
+                    .startOf("day")
+                    .toDate()
+                subobj.endDate = moment(presubscription[0].endDate)
+                    .add(plan.duration - 1, "days")
+                    .endOf("day")
+                    .toDate()
+                subobj.daysRemaining =
+                    plan.duration + presubscription[0].daysRemaining
+                let saveobj = new Subscription(subobj)
+                await saveobj.save()
+                let endDate = moment(presubscription[0].endDate)
+                    .add(plan.duration - 1, "days")
+                    .endOf("day")
+                    .toDate()
+                const daysRemaining =
+                    plan.duration + presubscription[0].daysRemaining
+                await User.findOneAndUpdate(
+                    {
+                        _id: data.user,
+                        status: "enabled",
+                        mobileVerified: true
+                    },
+                    {
+                        $set: {
+                            "planDetails.planName": plan.Name,
+                            "planDetails.endDate": endDate,
+                            "planDetails.daysRemaining": daysRemaining
+                        }
                     }
+                )
+                return saveobj
+            } else {
+                subobj.plan = plan._id
+                subobj.user = data.user
+                subobj.planName = plan.name
+                subobj.planPrice = plan.price
+                subobj.planDuration = plan.duration
+                subobj.transactionId = data._id
+                if (subscription.planPrice == 0) {
+                    subobj.planStatus = "active"
+                    subobj.startDate = moment().toDate()
+                    subobj.endDate = moment()
+                        .add(plan.duration - 1, "days")
+                        .endOf("day")
+                        .toDate()
+                    await Subscription.findOneAndUpdate(
+                        {
+                            _id: subscription._id
+                        },
+                        {
+                            planStatus: "expired"
+                        }
+                    )
+                    subobj.daysRemaining = plan.duration
+                    let saveobj = new Subscription(subobj)
+                    await saveobj.save()
+                    let userSub = {}
+                    userSub.planDetails = subobj
+                    userSub.freeTrialUsed = true
+                    await User.findOneAndUpdate(
+                        {
+                            _id: data.user,
+                            status: "enabled",
+                            mobileVerified: true
+                        },
+                        userSub
+                    )
+                    return saveobj
+                } else {
+                    subobj.planStatus = "pre-active"
+                    subobj.startDate = moment(subscription.endDate)
+                        .add(1, "days")
+                        .startOf("day")
+                        .toDate()
+                    subobj.endDate = moment(subscription.endDate)
+                        .add(plan.duration - 1, "days")
+                        .endOf("day")
+                        .toDate()
+                    subobj.daysRemaining =
+                        plan.duration + subscription.daysRemaining
+                    let saveobj = new Subscription(subobj)
+                    await saveobj.save()
+                    let endDate = moment(subscription.endDate)
+                        .add(plan.duration - 1, "days")
+                        .endOf("day")
+                        .toDate()
+                    const daysRemaining =
+                        plan.duration + subscription.daysRemaining
+                    await User.findOneAndUpdate(
+                        {
+                            _id: data.user,
+                            status: "enabled",
+                            mobileVerified: true
+                        },
+                        {
+                            $set: {
+                                "planDetails.planName": plan.Name,
+                                "planDetails.endDate": endDate,
+                                "planDetails.daysRemaining": daysRemaining
+                            }
+                        }
+                    )
+                    return saveobj
                 }
-            )
-            return saveobj
+            }
         }
         subobj.plan = plan._id
         subobj.user = data.user
@@ -160,6 +248,7 @@ export default {
                 _id: 1,
                 planName: 1,
                 planPrice: 1,
+                planStatus: 1,
                 startDate: 1,
                 endDate: 1,
                 createdAt: 1
