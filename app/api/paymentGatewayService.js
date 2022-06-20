@@ -46,16 +46,6 @@ class Payment {
             }
 
             const transactionObj = new Transaction(transactionObjToSave)
-            // try {
-            //     let user = await UserModel.getUserDetails({
-            //         userId: data.userId
-            //     })
-            //     if (user && user.length) {
-            //         _.merge(transactionObj, user[0])
-            //     }
-            // } catch (error) {
-            //     console.log("Error::", error)
-            // }
             transactionObj
                 .save()
                 .then((dbresponse) => {
@@ -86,7 +76,6 @@ class Payment {
             const user = await User.findOne(
                 { _id: ObjectId(transData.user) },
                 { name: 1, _id: 1, mobile: 1 }
-                // { name: 1, email: 1, _id: 1, mobileNo: 1 }
             )
             if (!_.isEmpty(user)) {
                 let randomMobileNo = _.random(7000000000, 9999999999)
@@ -101,7 +90,6 @@ class Payment {
                         "/Transaction/apexpay/redirecturl?p=" +
                         transData.order_id
                 }
-                // const consts = consts
                 deferred.resolve(`<!DOCTYPE html
                     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
                 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -574,20 +562,20 @@ class Payment {
             })
             return
         }
-        const subscription = await Subscription.findOne({
-            user: data.userId,
-            planStatus: "pre-active"
-        })
-        if (subscription != null) {
-            res.status(400).send({
-                status: 400,
-                message: "Bad Request",
-                error: {
-                    message: "User already subscribed"
-                }
-            })
-            return
-        }
+        // const subscription = await Subscription.findOne({
+        //     user: data.userId,
+        //     planStatus: "pre-active"
+        // })
+        // if (subscription != null) {
+        //     res.status(400).send({
+        //         status: 400,
+        //         message: "Bad Request",
+        //         error: {
+        //             message: "User already subscribed"
+        //         }
+        //     })
+        //     return
+        // }
         if (plan.price == 0) {
             if (userData.freeTrialUsed) {
                 res.status(400).send({

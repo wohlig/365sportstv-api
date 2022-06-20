@@ -50,20 +50,22 @@ if (process.env.cron) {
                     moment().utcOffset("+5:30")
                 ) {
                     item.planStatus = "active"
+                    let userSub = {}
+                    userSub.planDetails = item
+                    await Promise.all([
+                        SubscriptionModel.updateData(item._id, item),
+                        User.findOneAndUpdate(
+                            {
+                                _id: item.user,
+                                status: "enabled",
+                                mobileVerified: true
+                            },
+                            userSub
+                        )
+                    ])
                 }
-                let userSub = {}
-                userSub.planDetails = item
-                await Promise.all([
-                    SubscriptionModel.updateData(item._id, item),
-                    User.findOneAndUpdate(
-                        {
-                            _id: item.user,
-                            status: "enabled",
-                            mobileVerified: true
-                        },
-                        userSub
-                    )
-                ])
+                item.daysRemaining = item.daysRemaining - 1
+                await Subscription.findOneAndUpdate(item._id, item)
             })
         }
     })
