@@ -248,7 +248,7 @@ export default {
         const data = await Subscription.find(
             {
                 user: body.userId,
-                planStatus: body.statusFilter 
+                planStatus: body.statusFilter
             },
             {
                 _id: 1,
@@ -271,8 +271,7 @@ export default {
             .exec()
         const count = await Subscription.countDocuments({
             user: body.userId,
-            planStatus: body.statusFilter 
-
+            planStatus: body.statusFilter
         }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
