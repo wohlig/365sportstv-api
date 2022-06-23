@@ -235,6 +235,11 @@ export default {
                 body.sortDesc[0] = 1
             }
         }
+        if (body.statusFilter === "clear") {
+            body.statusFilter = ["active", "expired", "cancelled", "pre-active"]
+        } else {
+            body.statusFilter = [body.statusFilter]
+        }
         var sort = {}
         sort[body.sortBy[0]] = body.sortDesc[0]
         const pageNo = body.page
@@ -242,7 +247,8 @@ export default {
         const limit = body.itemsPerPage
         const data = await Subscription.find(
             {
-                user: body.userId
+                user: body.userId,
+                planStatus: body.statusFilter
             },
             {
                 _id: 1,
@@ -264,7 +270,8 @@ export default {
             .limit(limit)
             .exec()
         const count = await Subscription.countDocuments({
-            user: body.userId
+            user: body.userId,
+            planStatus: body.statusFilter
         }).exec()
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }

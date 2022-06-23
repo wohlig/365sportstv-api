@@ -9,7 +9,7 @@ var schema = new Schema(
         endDate: { type: Date },
         planStatus: {
             type: String,
-            enum: ["active", "expeired", "cancelled", "pre-active"],
+            enum: ["active", "expired", "cancelled", "pre-active"],
             default: "active"
         },
         daysRemaining: { type: Number },

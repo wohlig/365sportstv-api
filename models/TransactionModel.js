@@ -86,6 +86,11 @@ export default {
                 body.sortDesc[0] = 1
             }
         }
+        if (body.statusFilter === "clear") {
+            body.statusFilter = ["pending", "completed", "cancelled"]
+        } else {
+            body.statusFilter = [body.statusFilter]
+        }
         var sort = {}
         sort[body.sortBy[0]] = body.sortDesc[0]
         const pageNo = body.page
@@ -108,8 +113,17 @@ export default {
                 },
                 {
                     $match: {
+                        status: { $in: body.statusFilter },
                         "user.name": {
-                            $regex: body.searchFilter,
+                            $regex: body.searchuserFilter,
+                            $options: "i"
+                        },
+                        "user.mobile": {
+                            $regex: body.searchmobileFilter,
+                            $options: "i"
+                        },
+                        order_id: {
+                            $regex: body.searchorderFilter,
                             $options: "i"
                         },
                         transactionType: "deposit"
@@ -156,8 +170,17 @@ export default {
                 },
                 {
                     $match: {
+                        status: { $in: body.statusFilter },
                         "user.name": {
-                            $regex: body.searchFilter,
+                            $regex: body.searchuserFilter,
+                            $options: "i"
+                        },
+                        "user.mobile": {
+                            $regex: body.searchmobileFilter,
+                            $options: "i"
+                        },
+                        order_id: {
+                            $regex: body.searchorderFilter,
                             $options: "i"
                         },
                         transactionType: "deposit"
