@@ -208,4 +208,13 @@ router.put(
         }
     }
 )
+router.post("/validatezoom", async (req, res) => {
+    try {
+        const data = await GameModel.validatezoom(req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 export default router

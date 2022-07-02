@@ -5,12 +5,18 @@ var schema = new Schema(
         startTime: {
             type: Date
         },
-        streamId: {
+        meetingNumber: {
             type: String
         },
-        scoreId: {
+        password: {
             type: String
         },
+        // streamId: {
+        //     type: String
+        // },
+        // scoreId: {
+        //     type: String
+        // },
         status: {
             type: String,
             enum: ["enabled", "disabled", "archived"],

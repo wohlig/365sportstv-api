@@ -1,6 +1,9 @@
 import FavoriteModel from "./FavoriteModel"
 import axios from "axios"
 import moment from "moment"
+// const bodyParser = require("body-parser")
+// const KJUR = require("jsrsasign")
+// const crypto = require("crypto")
 export default {
     //create game
     saveData: async (data) => {
@@ -249,54 +252,56 @@ export default {
                             }
                         }
                     },
-                    streamId: 1,
-                    scoreId: 1
+                    meetingNumber: 1,
+                    password: 1
+                    // streamId: 1,
+                    // scoreId: 1
                 }
             }
         ]).exec()
-        let streams = await Channel.findOne({ ingest: data[0].streamId })
-        let streamArray = []
-        let allStreams = []
-        if (streams) {
-            streamArray[0] = streams.ingest
-            streamArray[1] = streams.transcode1
-            streamArray[2] = streams.transcode2
-            streamArray[3] = streams.transcode3
-            await Promise.all(
-                streamArray.map(async (record) => {
-                    const streamSecurity = await axios.post(
-                        "https://bintu-splay.nanocosmos.de/secure/token",
-                        {
-                            streamname: record,
-                            tag: "",
-                            expires: ""
-                        },
-                        {
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-BINTU-APIKEY": process.env.BINTU_API_KEY
-                            }
-                        }
-                    )
+        // let streams = await Channel.findOne({ ingest: data[0].streamId })
+        // let streamArray = []
+        // let allStreams = []
+        // if (streams) {
+        //     streamArray[0] = streams.ingest
+        //     streamArray[1] = streams.transcode1
+        //     streamArray[2] = streams.transcode2
+        //     streamArray[3] = streams.transcode3
+        //     await Promise.all(
+        //         streamArray.map(async (record) => {
+        //             const streamSecurity = await axios.post(
+        //                 "https://bintu-splay.nanocosmos.de/secure/token",
+        //                 {
+        //                     streamname: record,
+        //                     tag: "",
+        //                     expires: ""
+        //                 },
+        //                 {
+        //                     headers: {
+        //                         "Content-Type": "application/json",
+        //                         "X-BINTU-APIKEY": process.env.BINTU_API_KEY
+        //                     }
+        //                 }
+        //             )
 
-                    var encrypted = CryptoJS.AES.encrypt(
-                        JSON.stringify(streamSecurity.data.h5live.security),
-                        crypto_key,
-                        {
-                            keySize: 128 / 8,
-                            iv: crypto_key,
-                            mode: CryptoJS.mode.CBC,
-                            padding: CryptoJS.pad.Pkcs7
-                        }
-                    ).toString()
-                    allStreams.push({
-                        streamname: record,
-                        security: encrypted
-                    })
-                })
-            )
-        }
-        data[0].streams = allStreams
+        //             var encrypted = CryptoJS.AES.encrypt(
+        //                 JSON.stringify(streamSecurity.data.h5live.security),
+        //                 crypto_key,
+        //                 {
+        //                     keySize: 128 / 8,
+        //                     iv: crypto_key,
+        //                     mode: CryptoJS.mode.CBC,
+        //                     padding: CryptoJS.pad.Pkcs7
+        //                 }
+        //             ).toString()
+        //             allStreams.push({
+        //                 streamname: record,
+        //                 security: encrypted
+        //             })
+        //         })
+        //     )
+        // }
+        // data[0].streams = allStreams
         return data[0]
     },
 
@@ -384,5 +389,34 @@ export default {
         let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
         await Favorite.findOneAndUpdate({ gameId: id }, updateObj)
         return obj
+    },
+    validatezoom: async (data) => {
+        const KJUR = require("jsrsasign")
+        // https://www.npmjs.com/package/jsrsasign
+
+        const iat = Math.round((new Date().getTime() - 30000) / 1000)
+        const exp = iat + 60 * 60 * 2
+        const oHeader = { alg: "HS256", typ: "JWT" }
+
+        const oPayload = {
+            sdkKey: data.sdkKey,
+            mn: data.meetingNumber,
+            role: data.role,
+            iat: iat,
+            exp: exp,
+            appKey: data.sdkKey,
+            tokenExp: iat + 60 * 60 * 2
+        }
+        console.log(data.sdkSecret)
+        const sHeader = JSON.stringify(oHeader)
+        const sPayload = JSON.stringify(oPayload)
+        const signature = KJUR.jws.JWS.sign(
+            "HS256",
+            sHeader,
+            sPayload,
+            data.sdkSecret
+        )
+        console.log(">>>>", signature)
+        return { signature }
     }
 }
