@@ -395,26 +395,36 @@ export default {
         // https://www.npmjs.com/package/jsrsasign
 
         const iat = Math.round((new Date().getTime() - 30000) / 1000)
+        console.log("IAT", iat)
         const exp = iat + 60 * 60 * 2
+        console.log("EXP", exp)
         const oHeader = { alg: "HS256", typ: "JWT" }
-
+        console.log(process.env.ZOOM_VIDEO_SDK_KEY)
+        console.log(process.env.ZOOM_VIDEO_SDK_SECRET)
         const oPayload = {
-            sdkKey: data.sdkKey,
-            mn: data.meetingNumber,
-            role: data.role,
+            // sdkKey: process.env.ZOOM_VIDEO_SDK_KEY,
+            // mn: data.meetingNumber,
+            // role: data.role,
+            // iat: iat,
+            // exp: exp,
+            // appKey: process.env.ZOOM_VIDEO_SDK_KEY,
+            // tokenExp: iat + 60 * 60 * 2,
+            // user_identity: req.body.userIdentity,
+            // session_key: req.body.sessionKey,
+            app_key: process.env.ZOOM_VIDEO_SDK_KEY,
+            tpc: data.sessionName,
+            role_type: data.role,
             iat: iat,
-            exp: exp,
-            appKey: data.sdkKey,
-            tokenExp: iat + 60 * 60 * 2
+            exp: exp
         }
-        console.log(data.sdkSecret)
+        // console.log(data.sdkSecret)
         const sHeader = JSON.stringify(oHeader)
         const sPayload = JSON.stringify(oPayload)
         const signature = KJUR.jws.JWS.sign(
             "HS256",
             sHeader,
             sPayload,
-            data.sdkSecret
+            process.env.ZOOM_VIDEO_SDK_SECRET
         )
         console.log(">>>>", signature)
         return { signature }
