@@ -1,9 +1,6 @@
 import FavoriteModel from "./FavoriteModel"
 import axios from "axios"
 import moment from "moment"
-// const bodyParser = require("body-parser")
-// const KJUR = require("jsrsasign")
-// const crypto = require("crypto")
 export default {
     //create game
     saveData: async (data) => {
@@ -392,31 +389,30 @@ export default {
     },
     validatezoom: async (data) => {
         const KJUR = require("jsrsasign")
-        // https://www.npmjs.com/package/jsrsasign
-
         const iat = Math.round((new Date().getTime() - 30000) / 1000)
         const exp = iat + 60 * 60 * 2
+
         const oHeader = { alg: "HS256", typ: "JWT" }
 
         const oPayload = {
-            sdkKey: data.sdkKey,
-            mn: data.meetingNumber,
-            role: data.role,
+            app_key: process.env.ZOOM_VIDEO_SDK_KEY,
+            tpc: data.sessionName,
+            role_type: data.role,
+            user_identity: data.userIdentity,
+            session_key: data.sessionKey,
             iat: iat,
-            exp: exp,
-            appKey: data.sdkKey,
-            tokenExp: iat + 60 * 60 * 2
+            exp: exp
         }
-        console.log(data.sdkSecret)
+
         const sHeader = JSON.stringify(oHeader)
         const sPayload = JSON.stringify(oPayload)
         const signature = KJUR.jws.JWS.sign(
             "HS256",
             sHeader,
             sPayload,
-            data.sdkSecret
+            process.env.ZOOM_VIDEO_SDK_SECRET
         )
-        console.log(">>>>", signature)
-        return { signature }
+
+        return { signature: signature }
     }
 }
