@@ -387,6 +387,13 @@ export default {
         await Favorite.findOneAndUpdate({ gameId: id }, updateObj)
         return obj
     },
+    shareScreenStatus: async (id, data) => {
+        let updateObj = {
+            shareScreenStatus: data.shareScreenStatus
+        }
+        let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
+        return obj
+    },
     validatezoom: async (data) => {
         const KJUR = require("jsrsasign")
         const iat = Math.round((new Date().getTime() - 30000) / 1000)

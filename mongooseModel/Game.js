@@ -21,6 +21,11 @@ var schema = new Schema(
             type: String,
             enum: ["enabled", "disabled", "archived"],
             default: "enabled"
+        },
+        shareScreenStatus: {
+            type: String,
+            enum: ["enabled", "disabled"],
+            default: "disabled"
         }
     },
     {

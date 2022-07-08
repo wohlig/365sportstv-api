@@ -208,6 +208,15 @@ router.put(
         }
     }
 )
+router.put("/shareScreenStatus/:id", authenticateMaster, async (req, res) => {
+    try {
+        const data = await GameModel.shareScreenStatus(req.params.id, req.body)
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 router.post("/validatezoom", async (req, res) => {
     try {
         const data = await GameModel.validatezoom(req.body)
@@ -217,4 +226,5 @@ router.post("/validatezoom", async (req, res) => {
         res.status(500).json(error)
     }
 })
+
 export default router
