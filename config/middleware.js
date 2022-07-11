@@ -30,6 +30,7 @@ global.authenticateUser = async (req, res, next) => {
 }
 global.authenticateAdmin = async (req, res, next) => {
     if (req && req.headers && req.headers.authorization) {
+        console.log("><><><><", req.headers.authorization)
         var decoded
         try {
             // decoded = await jwtDecode(req.headers.accesstoken)
@@ -38,9 +39,12 @@ global.authenticateAdmin = async (req, res, next) => {
                 process.env["JWT_KEY"]
             )
             req.user = decoded
+            console.log(req.user)
             if (req.user.userType === "Admin") {
+                console.log("1")
                 next()
             } else {
+                console.log("2")
                 res.status(401).send("Not Authorized")
             }
         } catch (e) {
@@ -48,6 +52,7 @@ global.authenticateAdmin = async (req, res, next) => {
             res.status(401).send(e)
         }
     } else {
+        console.log(">>>>>>>>>", req.headers.authorization)
         res.status(401).send("Not Authorized")
     }
 }

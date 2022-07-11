@@ -185,23 +185,6 @@ export default {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
     },
-    getTotalSubscribedUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: { $nin: [0] }
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
-    },
     getTotalActiveSubscribedUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
             {
@@ -220,12 +203,48 @@ export default {
         ])
         return data.length
     },
-    getTotalActiveSubscribedUsersForAdmin: async () => {
+    getTotalExpiredSubscribedUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
             {
                 $match: {
                     planPrice: { $nin: [0] },
-                    planStatus: ""
+                    planStatus: "expired"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user"
+                    }
+                }
+            }
+        ])
+        return data.length
+    },
+    getTotalActiveFreeTrialUsersForAdmin: async () => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: 0,
+                    planStatus: "active"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user"
+                    }
+                }
+            }
+        ])
+        return data.length
+    },
+    getTotalExpiredFreeTrialUsersForAdmin: async () => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: 0,
+                    planStatus: "expired"
                 }
             },
             {

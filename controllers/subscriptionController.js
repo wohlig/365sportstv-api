@@ -25,20 +25,6 @@ router.post(
     }
 )
 router.get(
-    "/getTotalSubscribedUsersForAdmin",
-    authenticateAdmin,
-    async (req, res) => {
-        try {
-            const data =
-                await SubscriptionModel.getTotalSubscribedUsersForAdmin()
-            res.json(data)
-        } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
-        }
-    }
-)
-router.get(
     "/getTotalActiveSubscribedUsersForAdmin",
     authenticateAdmin,
     async (req, res) => {
@@ -52,33 +38,50 @@ router.get(
         }
     }
 )
-// router.post(
-//     "/create",
-//     authenticateUser,
-//     ValidateRequest({
-//         body: {
-//             type: "object",
-//             properties: {
-//                 plan: { type: "string", format: "objectId" },
-//                 transactionId: { type: "string", format: "objectId" }
-//             },
-//             required: ["plan", "transactionId"]
-//         }
-//     }),
-//     async (req, res) => {
-//         try {
-//             const data = await SubscriptionModel.saveData(req.body, req.user)
-//             if (data.value) {
-//                 res.status(200).json(data.data)
-//             } else {
-//                 res.status(500).json(data.data)
-//             }
-//         } catch (error) {
-//             console.error(error)
-//             res.status(500).json(error)
-//         }
-//     }
-// )
+router.get(
+    "/getTotalExpiredSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        console.log("IINNN")
+        try {
+            const data =
+                await SubscriptionModel.getTotalExpiredSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
+    "/getTotalActiveFreeTrialUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getTotalActiveFreeTrialUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
+    "/getTotalExpiredFreeTrialUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        console.log("IINNN")
+        try {
+            const data =
+                await SubscriptionModel.getTotalExpiredFreeTrialUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 router.post(
     "/getAllSubscriptionsOfOneUserForAdmin",
     authenticateAdmin,
