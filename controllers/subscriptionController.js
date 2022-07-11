@@ -71,7 +71,6 @@ router.get(
     "/getTotalExpiredFreeTrialUsersForAdmin",
     authenticateAdmin,
     async (req, res) => {
-        console.log("IINNN")
         try {
             const data =
                 await SubscriptionModel.getTotalExpiredFreeTrialUsersForAdmin()
