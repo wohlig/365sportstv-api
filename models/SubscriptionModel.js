@@ -220,6 +220,24 @@ export default {
         ])
         return data.length
     },
+    getTotalActiveSubscribedUsersForAdmin: async () => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: { $nin: [0] },
+                    planStatus: ""
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user"
+                    }
+                }
+            }
+        ])
+        return data.length
+    },
     getAllSubscriptionsOfOneUserForAdmin: async (body) => {
         let _ = require("lodash")
         if (_.isEmpty(body.sortBy)) {

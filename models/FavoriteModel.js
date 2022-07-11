@@ -70,7 +70,7 @@ export default {
             {
                 $project: {
                     _id: 1,
-                    streamId: 1,
+                    // streamId: 1,
                     favorite: {
                         $cond: {
                             if: { $eq: ["$favorite", null] },
@@ -94,58 +94,58 @@ export default {
                 }
             }
         ])
-        await Promise.all(
-            data.map(async (record) => {
-                let streams = await Channel.findOne({
-                    ingest: record.streamId
-                })
-                let streamArray = []
-                let allStreams = []
-                if (streams) {
-                    streamArray[0] = streams.ingest
-                    streamArray[1] = streams.transcode1
-                    streamArray[2] = streams.transcode2
-                    streamArray[3] = streams.transcode3
-                    await Promise.all(
-                        streamArray.map(async (stream) => {
-                            const streamSecurity = await axios.post(
-                                "https://bintu-splay.nanocosmos.de/secure/token",
-                                {
-                                    streamname: stream,
-                                    tag: "",
-                                    expires: ""
-                                },
-                                {
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-BINTU-APIKEY":
-                                            process.env.BINTU_API_KEY
-                                    }
-                                }
-                            )
+        // await Promise.all(
+        //     data.map(async (record) => {
+        //         let streams = await Channel.findOne({
+        //             ingest: record.streamId
+        //         })
+        //         let streamArray = []
+        //         let allStreams = []
+        //         if (streams) {
+        //             streamArray[0] = streams.ingest
+        //             streamArray[1] = streams.transcode1
+        //             streamArray[2] = streams.transcode2
+        //             streamArray[3] = streams.transcode3
+        //             await Promise.all(
+        //                 streamArray.map(async (stream) => {
+        //                     const streamSecurity = await axios.post(
+        //                         "https://bintu-splay.nanocosmos.de/secure/token",
+        //                         {
+        //                             streamname: stream,
+        //                             tag: "",
+        //                             expires: ""
+        //                         },
+        //                         {
+        //                             headers: {
+        //                                 "Content-Type": "application/json",
+        //                                 "X-BINTU-APIKEY":
+        //                                     process.env.BINTU_API_KEY
+        //                             }
+        //                         }
+        //                     )
 
-                            var encrypted = CryptoJS.AES.encrypt(
-                                JSON.stringify(
-                                    streamSecurity.data.h5live.security
-                                ),
-                                crypto_key,
-                                {
-                                    keySize: 128 / 8,
-                                    iv: crypto_key,
-                                    mode: CryptoJS.mode.CBC,
-                                    padding: CryptoJS.pad.Pkcs7
-                                }
-                            ).toString()
-                            allStreams.push({
-                                streamname: stream,
-                                security: encrypted
-                            })
-                        })
-                    )
-                }
-                record.streams = allStreams
-            })
-        )
+        //                     var encrypted = CryptoJS.AES.encrypt(
+        //                         JSON.stringify(
+        //                             streamSecurity.data.h5live.security
+        //                         ),
+        //                         crypto_key,
+        //                         {
+        //                             keySize: 128 / 8,
+        //                             iv: crypto_key,
+        //                             mode: CryptoJS.mode.CBC,
+        //                             padding: CryptoJS.pad.Pkcs7
+        //                         }
+        //                     ).toString()
+        //                     allStreams.push({
+        //                         streamname: stream,
+        //                         security: encrypted
+        //                     })
+        //                 })
+        //             )
+        //         }
+        //         record.streams = allStreams
+        //     })
+        // )
         return data
     },
     getFavoritesForUserInBackend: async (body) => {
