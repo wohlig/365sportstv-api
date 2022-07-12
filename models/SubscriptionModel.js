@@ -239,23 +239,131 @@ export default {
         ])
         return data.length
     },
-    getActiveFreeTrialUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: 0,
-                    planStatus: "active"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
+    getActiveFreeTrialUsersForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["signUpDate"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        let [data, count] = await Promise.all([
+            Subscription.aggregate([
+                {
+                    $match: {
+                        planPrice: 0,
+                        planStatus: "active"
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$user"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "user"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$user"
+                    }
+                },
+                {
+                    $match: {
+                        "user.name": {
+                            $regex: body.searchFilter,
+                            $options: "i"
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        name: "$user.name",
+                        mobile: "$user.mobile",
+                        signUpDate: "$user.signUpDate",
+                        planDetails: "$user.planDetails"
+                    }
+                },
+                {
+                    $project: {
+                        name: 1,
+                        mobile: 1,
+                        _id: 1,
+                        signUpDate: 1,
+                        planDetails: 1
                     }
                 }
-            }
+            ])
+                .sort({ signUpDate: -1 })
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Subscription.aggregate([
+                {
+                    $match: {
+                        planPrice: 0,
+                        planStatus: "active"
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$user"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "user"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$user"
+                    }
+                },
+                {
+                    $match: {
+                        "user.name": {
+                            $regex: body.searchFilter,
+                            $options: "i"
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        user: {
+                            name: 1,
+                            mobile: 1,
+                            _id: 1,
+                            signUpDate: 1,
+                            planDetails: 1
+                        }
+                    }
+                }
+            ])
         ])
-        return data
+        count = count.length
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
     },
     getTotalExpiredFreeTrialUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
