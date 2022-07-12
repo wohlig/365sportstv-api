@@ -349,14 +349,20 @@ export default {
                     }
                 },
                 {
+                    $addFields: {
+                        name: "$user.name",
+                        mobile: "$user.mobile",
+                        signUpDate: "$user.signUpDate",
+                        planDetails: "$user.planDetails"
+                    }
+                },
+                {
                     $project: {
-                        user: {
-                            name: 1,
-                            mobile: 1,
-                            _id: 1,
-                            signUpDate: 1,
-                            planDetails: 1
-                        }
+                        name: 1,
+                        mobile: 1,
+                        _id: 1,
+                        signUpDate: 1,
+                        planDetails: 1
                     }
                 }
             ])
