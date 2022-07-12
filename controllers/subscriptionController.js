@@ -42,7 +42,6 @@ router.get(
     "/getTotalExpiredSubscribedUsersForAdmin",
     authenticateAdmin,
     async (req, res) => {
-        console.log("IINNN")
         try {
             const data =
                 await SubscriptionModel.getTotalExpiredSubscribedUsersForAdmin()
