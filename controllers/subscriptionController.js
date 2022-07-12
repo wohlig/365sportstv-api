@@ -38,6 +38,22 @@ router.get(
         }
     }
 )
+router.post(
+    "/getActiveSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getActiveSubscribedUsersForAdmin(
+                    req.body
+                )
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
 router.get(
     "/getTotalExpiredSubscribedUsersForAdmin",
     authenticateAdmin,
@@ -45,6 +61,22 @@ router.get(
         try {
             const data =
                 await SubscriptionModel.getTotalExpiredSubscribedUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.post(
+    "/getExpiredSubscribedUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getTotalExpiredSubscribedUsersForAdmin(
+                    req.body
+                )
             res.json(data)
         } catch (error) {
             console.error(error)
