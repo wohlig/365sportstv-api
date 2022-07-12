@@ -68,12 +68,40 @@ router.get(
     }
 )
 router.get(
+    "/getActiveFreeTrialUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getActiveFreeTrialUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
     "/getTotalExpiredFreeTrialUsersForAdmin",
     authenticateAdmin,
     async (req, res) => {
         try {
             const data =
                 await SubscriptionModel.getTotalExpiredFreeTrialUsersForAdmin()
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
+    }
+)
+router.get(
+    "/getExpiredFreeTrialUsersForAdmin",
+    authenticateAdmin,
+    async (req, res) => {
+        try {
+            const data =
+                await SubscriptionModel.getExpiredFreeTrialUsersForAdmin()
             res.json(data)
         } catch (error) {
             console.error(error)

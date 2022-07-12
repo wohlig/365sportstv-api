@@ -239,6 +239,24 @@ export default {
         ])
         return data.length
     },
+    getActiveFreeTrialUsersForAdmin: async () => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: 0,
+                    planStatus: "active"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user"
+                    }
+                }
+            }
+        ])
+        return data
+    },
     getTotalExpiredFreeTrialUsersForAdmin: async () => {
         let data = await Subscription.aggregate([
             {
@@ -256,6 +274,24 @@ export default {
             }
         ])
         return data.length
+    },
+    getExpiredFreeTrialUsersForAdmin: async () => {
+        let data = await Subscription.aggregate([
+            {
+                $match: {
+                    planPrice: 0,
+                    planStatus: "expired"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        user: "$user"
+                    }
+                }
+            }
+        ])
+        return data
     },
     getAllSubscriptionsOfOneUserForAdmin: async (body) => {
         let _ = require("lodash")
