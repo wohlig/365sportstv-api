@@ -96,13 +96,15 @@ router.get(
         }
     }
 )
-router.get(
+router.post(
     "/getExpiredFreeTrialUsersForAdmin",
     authenticateAdmin,
     async (req, res) => {
         try {
             const data =
-                await SubscriptionModel.getExpiredFreeTrialUsersForAdmin()
+                await SubscriptionModel.getExpiredFreeTrialUsersForAdmin(
+                    req.body
+                )
             res.json(data)
         } catch (error) {
             console.error(error)
