@@ -74,7 +74,7 @@ router.post(
     async (req, res) => {
         try {
             const data =
-                await SubscriptionModel.getTotalExpiredSubscribedUsersForAdmin(
+                await SubscriptionModel.getExpiredSubscribedUsersForAdmin(
                     req.body
                 )
             res.json(data)
