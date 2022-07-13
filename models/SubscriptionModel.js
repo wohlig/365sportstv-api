@@ -1,4 +1,5 @@
 import Subscription from "../mongooseModel/Subscription"
+import User from "../mongooseModel/User"
 import PlanModel from "./PlanModel"
 
 export default {
@@ -186,22 +187,14 @@ export default {
         return obj
     },
     getTotalActiveSubscribedUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: { $nin: [0] },
-                    planStatus: "active"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
+        let data = await User.countDocuments({
+            "planDetails.planPrice": { $nin: [0] },
+            "planDetails.planStatus": "active",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
     },
     getActiveSubscribedUsersForAdmin: async (body) => {
         let _ = require("lodash")
@@ -223,137 +216,42 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let [data, count] = await Promise.all([
-            Subscription.aggregate([
+        const [data, count] = await Promise.all([
+            User.find(
                 {
-                    $match: {
-                        planPrice: { $nin: [0] },
-                        planStatus: "active"
-                    }
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": { $nin: [0] },
+                    "planDetails.planStatus": "active",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
                 },
-                {
-                    $group: {
-                        _id: {
-                            user: "$user"
-                        }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
-                .sort({ signUpDate: -1 })
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
                 .skip(skip)
-                .limit(limit)
-                .exec(),
-            Subscription.aggregate([
-                {
-                    $match: {
-                        planPrice: { $nin: [0] },
-                        planStatus: "active"
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": { $nin: [0] },
+                "planDetails.planStatus": "active",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
         ])
-        count = count.length
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
     getTotalExpiredSubscribedUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: { $nin: [0] },
-                    planStatus: "expired"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
+        let data = await User.countDocuments({
+            "planDetails.planPrice": { $nin: [0] },
+            "planDetails.planStatus": "expired",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
     },
     getExpiredSubscribedUsersForAdmin: async (body) => {
         let _ = require("lodash")
@@ -375,137 +273,42 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let [data, count] = await Promise.all([
-            Subscription.aggregate([
+        const [data, count] = await Promise.all([
+            User.find(
                 {
-                    $match: {
-                        planPrice: { $nin: [0] },
-                        planStatus: "expired"
-                    }
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": { $nin: [0] },
+                    "planDetails.planStatus": "expired",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
                 },
-                {
-                    $group: {
-                        _id: {
-                            user: "$user"
-                        }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
-                .sort({ signUpDate: -1 })
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
                 .skip(skip)
-                .limit(limit)
-                .exec(),
-            Subscription.aggregate([
-                {
-                    $match: {
-                        planPrice: { $nin: [0] },
-                        planStatus: "expired"
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": { $nin: [0] },
+                "planDetails.planStatus": "expired",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
         ])
-        count = count.length
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
     getTotalActiveFreeTrialUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: 0,
-                    planStatus: "active"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
+        let data = await User.countDocuments({
+            "planDetails.planPrice": 0,
+            "planDetails.planStatus": "active",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
     },
     getActiveFreeTrialUsersForAdmin: async (body) => {
         let _ = require("lodash")
@@ -527,135 +330,42 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let [data, count] = await Promise.all([
-            Subscription.aggregate([
+        const [data, count] = await Promise.all([
+            User.find(
                 {
-                    $match: {
-                        planPrice: 0,
-                        planStatus: "active"
-                    }
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": 0,
+                    "planDetails.planStatus": "active",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
                 },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
-                .sort({ signUpDate: -1 })
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
                 .skip(skip)
-                .limit(limit)
-                .exec(),
-            Subscription.aggregate([
-                {
-                    $match: {
-                        planPrice: 0,
-                        planStatus: "active"
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": 0,
+                "planDetails.planStatus": "active",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
         ])
-        count = count.length
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
     getTotalExpiredFreeTrialUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: 0,
-                    planStatus: "expired"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
+        let data = await User.countDocuments({
+            "planDetails.planPrice": 0,
+            "planDetails.planStatus": "expired",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
     },
     getExpiredFreeTrialUsersForAdmin: async (body) => {
         let _ = require("lodash")
@@ -677,115 +387,30 @@ export default {
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
-        let [data, count] = await Promise.all([
-            Subscription.aggregate([
+        const [data, count] = await Promise.all([
+            User.find(
                 {
-                    $match: {
-                        planPrice: 0,
-                        planStatus: "expired"
-                    }
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": 0,
+                    "planDetails.planStatus": "expired",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
                 },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
-                .sort({ signUpDate: -1 })
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
                 .skip(skip)
-                .limit(limit)
-                .exec(),
-            Subscription.aggregate([
-                {
-                    $match: {
-                        planPrice: 0,
-                        planStatus: "expired"
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$user"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$user"
-                    }
-                },
-                {
-                    $match: {
-                        "user.name": {
-                            $regex: body.searchFilter,
-                            $options: "i"
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        name: "$user.name",
-                        mobile: "$user.mobile",
-                        signUpDate: "$user.signUpDate",
-                        planDetails: "$user.planDetails"
-                    }
-                },
-                {
-                    $project: {
-                        name: 1,
-                        mobile: 1,
-                        _id: 1,
-                        signUpDate: 1,
-                        planDetails: 1
-                    }
-                }
-            ])
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": 0,
+                "planDetails.planStatus": "expired",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
         ])
-        count = count.length
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
