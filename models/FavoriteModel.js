@@ -70,6 +70,8 @@ export default {
             {
                 $project: {
                     _id: 1,
+                    meetingNumber: 1,
+                    password: 1,
                     // streamId: 1,
                     favorite: {
                         $cond: {

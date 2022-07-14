@@ -181,6 +181,7 @@ router.put(
     authenticateMaster,
     async (req, res) => {
         try {
+            console.log(req.body)
             const data = await GameModel.updateOneGameForAdmin(
                 req.params.id,
                 req.body
@@ -208,6 +209,18 @@ router.put(
         }
     }
 )
+router.put("/updateMeetingStatus/:id", authenticateMaster, async (req, res) => {
+    try {
+        const data = await GameModel.updateMeetingStatus(
+            req.params.id,
+            req.body
+        )
+        res.json(data)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(error)
+    }
+})
 router.post("/validatezoom", async (req, res) => {
     try {
         const data = await GameModel.validatezoom(req.body)

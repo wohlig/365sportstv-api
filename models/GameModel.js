@@ -1,6 +1,9 @@
 import FavoriteModel from "./FavoriteModel"
 import axios from "axios"
 import moment from "moment"
+// const bodyParser = require("body-parser")
+// const KJUR = require("jsrsasign")
+// const crypto = require("crypto")
 export default {
     //create game
     saveData: async (data) => {
@@ -71,7 +74,8 @@ export default {
                                     }
                                 }
                             }
-                        }
+                        },
+                        meetingStatus: 1
                     }
                 }
             ])
@@ -356,6 +360,25 @@ export default {
                             }
                         }
                     }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        startTime: 1,
+                        meetingNumber: 1,
+                        password: 1,
+                        status: {
+                            $cond: [
+                                { $eq: ["$status", "enabled"] },
+                                true,
+                                false
+                            ]
+                        },
+                        meetingStatus: 1,
+                        liveStatus: 1
+                    }
                 }
             ])
                 .sort(sort)
@@ -371,11 +394,27 @@ export default {
         return { data, count, maxPage }
     },
     getOneGameForAdmin: async (id) => {
-        return await Game.findOne({
-            _id: id
-        }).exec()
+        return await Game.findOne(
+            {
+                _id: id
+            },
+            {
+                _id: 1,
+                name: 1,
+                description: 1,
+                startTime: 1,
+                meetingNumber: 1,
+                password: 1,
+                status: {
+                    $cond: [{ $eq: ["$status", "enabled"] }, true, false]
+                },
+                meetingStatus: 1,
+                liveStatus: 1
+            }
+        ).exec()
     },
     updateOneGameForAdmin: async (id, data) => {
+        console.log("DATA", data)
         let obj = await Game.findOneAndUpdate({ _id: id }, data)
         return obj
     },
@@ -387,32 +426,38 @@ export default {
         await Favorite.findOneAndUpdate({ gameId: id }, updateObj)
         return obj
     },
+    updateMeetingStatus: async (id, data) => {
+        let updateObj = {
+            meetingStatus: data.status
+        }
+        let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
+        return obj
+    },
     validatezoom: async (data) => {
         const KJUR = require("jsrsasign")
+        // https://www.npmjs.com/package/jsrsasign
+
         const iat = Math.round((new Date().getTime() - 30000) / 1000)
         const exp = iat + 60 * 60 * 2
-
         const oHeader = { alg: "HS256", typ: "JWT" }
 
         const oPayload = {
-            app_key: process.env.ZOOM_VIDEO_SDK_KEY,
-            tpc: data.sessionName,
-            role_type: data.role,
-            user_identity: data.userIdentity,
-            session_key: data.sessionKey,
+            sdkKey: data.sdkKey,
+            mn: data.meetingNumber,
+            role: data.role,
             iat: iat,
-            exp: exp
+            exp: exp,
+            appKey: data.sdkKey,
+            tokenExp: iat + 60 * 60 * 2
         }
-
         const sHeader = JSON.stringify(oHeader)
         const sPayload = JSON.stringify(oPayload)
         const signature = KJUR.jws.JWS.sign(
             "HS256",
             sHeader,
             sPayload,
-            process.env.ZOOM_VIDEO_SDK_SECRET
+            data.sdkSecret
         )
-
-        return { signature: signature }
+        return { signature }
     }
 }
