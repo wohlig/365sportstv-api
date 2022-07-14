@@ -1,4 +1,5 @@
 import Subscription from "../mongooseModel/Subscription"
+import User from "../mongooseModel/User"
 import PlanModel from "./PlanModel"
 
 export default {
@@ -185,40 +186,233 @@ export default {
         let obj = await Subscription.findOneAndUpdate({ _id: id }, data)
         return obj
     },
-    getTotalSubscribedUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: { $nin: [0] }
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
-            }
-        ])
-        return data.length
-    },
     getTotalActiveSubscribedUsersForAdmin: async () => {
-        let data = await Subscription.aggregate([
-            {
-                $match: {
-                    planPrice: { $nin: [0] },
-                    planStatus: "active"
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        user: "$user"
-                    }
-                }
+        let data = await User.countDocuments({
+            "planDetails.planPrice": { $nin: [0] },
+            "planDetails.planStatus": "active",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
+    },
+    getActiveSubscribedUsersForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["signUpDate"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
             }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const [data, count] = await Promise.all([
+            User.find(
+                {
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": { $nin: [0] },
+                    "planDetails.planStatus": "active",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
+                },
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": { $nin: [0] },
+                "planDetails.planStatus": "active",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
         ])
-        return data.length
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
+    },
+    getTotalExpiredSubscribedUsersForAdmin: async () => {
+        let data = await User.countDocuments({
+            "planDetails.planPrice": { $nin: [0] },
+            "planDetails.planStatus": "expired",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
+    },
+    getExpiredSubscribedUsersForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["signUpDate"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const [data, count] = await Promise.all([
+            User.find(
+                {
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": { $nin: [0] },
+                    "planDetails.planStatus": "expired",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
+                },
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": { $nin: [0] },
+                "planDetails.planStatus": "expired",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
+        ])
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
+    },
+    getTotalActiveFreeTrialUsersForAdmin: async () => {
+        let data = await User.countDocuments({
+            "planDetails.planPrice": 0,
+            "planDetails.planStatus": "active",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
+    },
+    getActiveFreeTrialUsersForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["signUpDate"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const [data, count] = await Promise.all([
+            User.find(
+                {
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": 0,
+                    "planDetails.planStatus": "active",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
+                },
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": 0,
+                "planDetails.planStatus": "active",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
+        ])
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
+    },
+    getTotalExpiredFreeTrialUsersForAdmin: async () => {
+        let data = await User.countDocuments({
+            "planDetails.planPrice": 0,
+            "planDetails.planStatus": "expired",
+            userType: "User",
+            mobileVerified: true,
+            status: { $in: ["enabled"] }
+        })
+        return data
+    },
+    getExpiredFreeTrialUsersForAdmin: async (body) => {
+        let _ = require("lodash")
+        if (_.isEmpty(body.sortBy)) {
+            body.sortBy = ["signUpDate"]
+        }
+        if (_.isEmpty(body.sortDesc)) {
+            body.sortDesc = [-1]
+        } else {
+            if (body.sortDesc[0] === false) {
+                body.sortDesc[0] = -1
+            }
+            if (body.sortDesc[0] === true) {
+                body.sortDesc[0] = 1
+            }
+        }
+        var sort = {}
+        sort[body.sortBy[0]] = body.sortDesc[0]
+        const pageNo = body.page
+        const skip = (pageNo - 1) * body.itemsPerPage
+        const limit = body.itemsPerPage
+        const [data, count] = await Promise.all([
+            User.find(
+                {
+                    userType: "User",
+                    mobileVerified: true,
+                    "planDetails.planPrice": 0,
+                    "planDetails.planStatus": "expired",
+                    status: { $in: ["enabled"] },
+                    name: { $regex: body.searchFilter, $options: "i" }
+                },
+                { name: 1, mobile: 1, _id: 1, planDetails: 1, signUpDate: 1 }
+            )
+                .sort(sort)
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments({
+                userType: "User",
+                mobileVerified: true,
+                "planDetails.planPrice": 0,
+                "planDetails.planStatus": "expired",
+                status: { $in: ["enabled"] },
+                name: { $regex: body.searchFilter, $options: "i" }
+            }).exec()
+        ])
+        const maxPage = Math.ceil(count / limit)
+        return { data, count, maxPage }
     },
     getAllSubscriptionsOfOneUserForAdmin: async (body) => {
         let _ = require("lodash")
