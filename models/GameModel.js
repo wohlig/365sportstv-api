@@ -260,6 +260,21 @@ export default {
                 }
             }
         ]).exec()
+        const signature = await GameModel.validatezoom(data[0].meetingNumber)
+        data[0].signature = signature
+        data[0].sdkSecret = process.env.ZOOM_MEETING_SDK_SECRET
+        data[0].sdkKey = process.env.ZOOM_MEETING_SDK_KEY
+        const encrypted = CryptoJS.AES.encrypt(
+            JSON.stringify(data[0]),
+            crypto_key,
+            {
+                keySize: 128 / 8,
+                iv: crypto_key,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }
+        ).toString()
+        return encrypted
         // let streams = await Channel.findOne({ ingest: data[0].streamId })
         // let streamArray = []
         // let allStreams = []
@@ -303,7 +318,6 @@ export default {
         //     )
         // }
         // data[0].streams = allStreams
-        return data[0]
     },
 
     // updateData: async (id, data) => {
@@ -394,27 +408,31 @@ export default {
         return { data, count, maxPage }
     },
     getOneGameForAdmin: async (id) => {
-        return await Game.findOne(
+        const data = await Game.aggregate([
             {
-                _id: id
+                $match: {
+                    _id: mongoose.Types.ObjectId(id)
+                }
             },
             {
-                _id: 1,
-                name: 1,
-                description: 1,
-                startTime: 1,
-                meetingNumber: 1,
-                password: 1,
-                status: {
-                    $cond: [{ $eq: ["$status", "enabled"] }, true, false]
-                },
-                meetingStatus: 1,
-                liveStatus: 1
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    startTime: 1,
+                    meetingNumber: 1,
+                    password: 1,
+                    status: {
+                        $cond: [{ $eq: ["$status", "enabled"] }, true, false]
+                    },
+                    meetingStatus: 1,
+                    liveStatus: 1
+                }
             }
-        ).exec()
+        ]).exec()
+        return data[0]
     },
     updateOneGameForAdmin: async (id, data) => {
-        console.log("DATA", data)
         let obj = await Game.findOneAndUpdate({ _id: id }, data)
         return obj
     },
@@ -433,7 +451,7 @@ export default {
         let obj = await Game.findOneAndUpdate({ _id: id }, updateObj)
         return obj
     },
-    validatezoom: async (data) => {
+    validatezoom: async (meetingNumber) => {
         const KJUR = require("jsrsasign")
         // https://www.npmjs.com/package/jsrsasign
 
@@ -442,12 +460,12 @@ export default {
         const oHeader = { alg: "HS256", typ: "JWT" }
 
         const oPayload = {
-            sdkKey: data.sdkKey,
-            mn: data.meetingNumber,
-            role: data.role,
+            sdkKey: process.env.ZOOM_MEETING_SDK_KEY,
+            mn: meetingNumber,
+            role: 0,
             iat: iat,
             exp: exp,
-            appKey: data.sdkKey,
+            appKey: process.env.ZOOM_MEETING_SDK_KEY,
             tokenExp: iat + 60 * 60 * 2
         }
         const sHeader = JSON.stringify(oHeader)
@@ -456,8 +474,8 @@ export default {
             "HS256",
             sHeader,
             sPayload,
-            data.sdkSecret
+            process.env.ZOOM_MEETING_SDK_SECRET
         )
-        return { signature }
+        return signature
     }
 }
