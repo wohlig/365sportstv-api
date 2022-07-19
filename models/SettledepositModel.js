@@ -13,11 +13,14 @@ export default {
         return obj
     },
     search: async (body) => {
+        var startDate = new Date(body.startDate)
+        var endDate = new Date(body.endDate)
+        endDate.setDate(endDate.getDate() + 1)
         const pageNo = body.page
         const skip = (pageNo - 1) * body.itemsPerPage
         const limit = body.itemsPerPage
         const [data, count] = await Promise.all([
-            Settledeposit.find({})
+            Settledeposit.find({ updatedAt: { $gte: startDate, $lt: endDate } })
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
