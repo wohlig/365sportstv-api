@@ -383,6 +383,7 @@ export default {
                         description: 1,
                         startTime: 1,
                         meetingNumber: 1,
+                        username: 1,
                         password: 1,
                         status: {
                             $cond: [
