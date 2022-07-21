@@ -238,6 +238,7 @@ export default {
                     _id: 1,
                     name: 1,
                     description: 1,
+                    username: 1,
                     favorite: {
                         $cond: {
                             if: { $eq: ["$favorite", null] },
@@ -426,6 +427,7 @@ export default {
                         $cond: [{ $eq: ["$status", "enabled"] }, true, false]
                     },
                     meetingStatus: 1,
+                    username: 1,
                     liveStatus: 1
                 }
             }
