@@ -24,6 +24,8 @@ if (process.env.cron) {
                         moment().utcOffset("+5:30")
                 ) {
                     item.planStatus = "expired"
+                } else {
+                    item.planStatus = "active"
                 }
                 let userSub = {}
                 userSub.planDetails = item
@@ -35,7 +37,12 @@ if (process.env.cron) {
                             status: "enabled",
                             mobileVerified: true
                         },
-                        userSub
+                        {
+                            $set: {
+                                "planDetails.daysRemaining": item.daysRemaining,
+                                "planDetails.planStatus": item.planStatus
+                            }
+                        }
                     )
                 ])
             })
@@ -53,15 +60,15 @@ if (process.env.cron) {
                     let userSub = {}
                     userSub.planDetails = item
                     await Promise.all([
-                        SubscriptionModel.updateData(item._id, item),
-                        User.findOneAndUpdate(
-                            {
-                                _id: item.user,
-                                status: "enabled",
-                                mobileVerified: true
-                            },
-                            userSub
-                        )
+                        SubscriptionModel.updateData(item._id, item)
+                        // User.findOneAndUpdate(
+                        //     {
+                        //         _id: item.user,
+                        //         status: "enabled",
+                        //         mobileVerified: true
+                        //     },
+                        //     userSub
+                        // )
                     ])
                 }
                 item.daysRemaining = item.daysRemaining - 1

@@ -42,6 +42,9 @@ export default {
                     plan.duration + presubscription[0].daysRemaining
                 let saveobj = new Subscription(subobj)
                 await saveobj.save()
+                let userSub = {}
+                userSub.planDetails = subobj
+                userSub.freeTrialUsed = true
                 let endDate = moment(presubscription[0].endDate)
                     .add(plan.duration - 1, "days")
                     .endOf("day")
@@ -56,7 +59,11 @@ export default {
                     },
                     {
                         $set: {
-                            "planDetails.planName": plan.Name,
+                            "planDetails.plan": plan._id,
+                            "planDetails.planName": plan.name,
+                            "planDetails.planPrice": plan.price,
+                            "planDetails.planDuration": plan.duration,
+                            "planDetails.planDuration": data._id,
                             "planDetails.endDate": endDate,
                             "planDetails.daysRemaining": daysRemaining
                         }
@@ -128,7 +135,11 @@ export default {
                         },
                         {
                             $set: {
-                                "planDetails.planName": plan.Name,
+                                "planDetails.plan": plan._id,
+                                "planDetails.planName": plan.name,
+                                "planDetails.planPrice": plan.price,
+                                "planDetails.planDuration": plan.duration,
+                                "planDetails.planDuration": data._id,
                                 "planDetails.endDate": endDate,
                                 "planDetails.daysRemaining": daysRemaining
                             }
