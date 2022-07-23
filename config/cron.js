@@ -60,7 +60,7 @@ if (process.env.cron) {
                     let userSub = {}
                     userSub.planDetails = item
                     await Promise.all([
-                        SubscriptionModel.updateData(item._id, item),
+                        SubscriptionModel.updateData(item._id, item)
                         // User.findOneAndUpdate(
                         //     {
                         //         _id: item.user,
