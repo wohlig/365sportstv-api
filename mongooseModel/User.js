@@ -8,7 +8,7 @@ var schema = new Schema(
         mobileVerified: { type: Boolean, default: false },
         userType: {
             type: String,
-            enum: ["Admin", "User"],
+            enum: ["Admin", "User", "Master"],
             default: "User",
             index: true
         },
@@ -21,7 +21,12 @@ var schema = new Schema(
         freeTrialUsed: { type: Boolean, default: false },
         planDetails: {
             type: Schema.Types.Mixed
-        }
+        },
+        language: {
+            type: String,
+            default: "en-US"
+        },
+        signUpDate: { type: Date }
     },
     {
         timestamps: true
