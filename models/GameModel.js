@@ -199,7 +199,8 @@ export default {
             {
                 $match: {
                     _id: mongoose.Types.ObjectId(id),
-                    status: { $in: ["enabled", "disabled"] }
+                    status: { $in: ["enabled"] },
+                    meetingStatus: true
                 }
             },
             {
@@ -255,9 +256,9 @@ export default {
                         }
                     },
                     meetingNumber: 1,
-                    password: 1
-                    // streamId: 1,
-                    // scoreId: 1
+                    password: 1,
+                    status: 1,
+                    meetingStatus: 1
                 }
             }
         ]).exec()
@@ -326,7 +327,10 @@ export default {
     //     return obj
     // },
     deleteData: async (id) => {
-        let obj = await Game.deleteOne({ _id: id })
+        let obj = await Game.findOneAndUpdate(
+            { _id: id },
+            { status: "archived" }
+        )
         return obj
     },
     searchAllGamesForAdmin: async (body) => {
@@ -353,7 +357,8 @@ export default {
             Game.aggregate([
                 {
                     $match: {
-                        status: { $in: ["enabled", "disabled"] }
+                        status: { $in: ["enabled", "disabled"] },
+                        name: { $regex: body.searchFilter, $options: "i" }
                     }
                 },
                 {

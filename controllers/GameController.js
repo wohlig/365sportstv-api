@@ -133,7 +133,7 @@ router.put(
     }
 )
 router.delete(
-    "/:id",
+    "/deleteGameByAdmin/:id",
     authenticateMaster,
     ValidateRequest({
         params: {
