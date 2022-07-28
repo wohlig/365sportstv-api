@@ -9,7 +9,7 @@ var schema = new Schema(
             type: String,
             enum: ["enabled", "disabled", "archived"],
             default: "enabled"
-        },
+        }
     },
     {
         timestamps: true
