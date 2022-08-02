@@ -5,12 +5,15 @@ var schema = new Schema(
         startTime: {
             type: Date
         },
-        username: { type: String },
-        meetingNumber: {
-            type: String
-        },
-        password: {
-            type: String
+        // username: { type: String },
+        // meetingNumber: {
+        //     type: String
+        // },
+        // password: {
+        //     type: String
+        // },
+        meetings: {
+            type: Array
         },
         // streamId: {
         //     type: String

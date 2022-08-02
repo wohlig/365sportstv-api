@@ -9,19 +9,9 @@ router.post(
         body: {
             type: "object",
             properties: {
-                name: { type: "string" },
-                description: { type: "string" },
-                startTime: {
-                    type: "string"
-                },
-                streamId: {
-                    type: "string"
-                },
-                scoreId: {
-                    type: "string"
-                }
+                name: { type: "string" }
             },
-            required: ["name", "description", "startTime"]
+            required: ["name"]
         }
     }),
 
