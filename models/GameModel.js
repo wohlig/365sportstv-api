@@ -85,7 +85,7 @@ export default {
                 .limit(limit)
                 .exec(),
             Game.countDocuments({
-                status: { $in: ["enabled"] },
+                status: { $in: ["enabled"] }
                 // startTime: { $lte: moment().toDate() }
             }).exec()
         ])
