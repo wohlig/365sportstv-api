@@ -9,7 +9,7 @@ router.post(
         body: {
             type: "object",
             properties: {
-                name: { type: "string" },
+                name: { type: "string" }
             },
             required: ["name"]
         }
