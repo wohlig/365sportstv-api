@@ -1,6 +1,7 @@
 import FavoriteModel from "./FavoriteModel"
 import axios from "axios"
 import moment from "moment"
+import _ from "lodash"
 // const bodyParser = require("body-parser")
 // const KJUR = require("jsrsasign")
 // const crypto = require("crypto")
@@ -19,8 +20,8 @@ export default {
             Game.aggregate([
                 {
                     $match: {
-                        status: { $in: ["enabled"] },
-                        startTime: { $lte: moment().toDate() }
+                        status: { $in: ["enabled"] }
+                        // startTime: { $lte: moment().toDate() }
                     }
                 },
                 {
@@ -59,7 +60,7 @@ export default {
                         _id: 1,
                         name: 1,
                         description: 1,
-                        startTime: 1,
+                        // startTime: 1,
                         favorite: {
                             $cond: {
                                 if: { $eq: ["$favorite", null] },
@@ -96,11 +97,11 @@ export default {
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
         const [data, count] = await Promise.all([
-            Game.aggregate([
+            ScheduleListModel.aggregate([
                 {
                     $match: {
-                        status: { $in: ["enabled"] },
-                        startTime: { $gte: moment().toDate() }
+                        status: { $in: ["enabled"] }
+                        // startTime: { $gte: moment().toDate() }
                     }
                 },
                 {
@@ -162,7 +163,7 @@ export default {
                 .skip(skip)
                 .limit(limit)
                 .exec(),
-            Game.countDocuments({
+            Game.ScheduleListModel({
                 status: { $in: ["enabled"] },
                 startTime: { $gte: moment().toDate() }
             }).exec()
@@ -170,30 +171,30 @@ export default {
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
-    getPastGames: async () => {
-        const limit = 10
-        const data = await Game.aggregate([
-            {
-                $match: {
-                    status: { $in: ["archived"] },
-                    startTime: { $lt: moment().toDate() }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    scoreId: 1,
-                    updatedAt: 1
-                }
-            }
-        ])
-            .sort({ updatedAt: -1 })
-            .limit(limit)
-            .exec()
-        return { data }
-    },
+    // getPastGames: async () => {
+    //     const limit = 10
+    //     const data = await Game.aggregate([
+    //         {
+    //             $match: {
+    //                 status: { $in: ["archived"] },
+    //                 startTime: { $lt: moment().toDate() }
+    //             }
+    //         },
+    //         {
+    //             $project: {
+    //                 _id: 1,
+    //                 name: 1,
+    //                 description: 1,
+    //                 scoreId: 1,
+    //                 updatedAt: 1
+    //             }
+    //         }
+    //     ])
+    //         .sort({ updatedAt: -1 })
+    //         .limit(limit)
+    //         .exec()
+    //     return { data }
+    // },
     getOne: async (id, userId) => {
         const data = await Game.aggregate([
             {
@@ -255,13 +256,21 @@ export default {
                             }
                         }
                     },
-                    meetingNumber: 1,
-                    password: 1,
+                    meetings: 1,
                     status: 1,
                     meetingStatus: 1
                 }
             }
         ]).exec()
+        // for in data[0].meetings
+        _.each(data[0].meetings, function (item) {
+            if (item.meetingStatus == "active") {
+                data[0].meetingNumber = item.meetingNumber
+                data[0].password = item.password
+                data[0].username = item.username
+                data[0].meetings = []
+            }
+        })
         const signature = await GameModel.validatezoom(data[0].meetingNumber)
         data[0].signature = signature
         data[0].sdkSecret = process.env.ZOOM_MEETING_SDK_SECRET
@@ -361,35 +370,32 @@ export default {
                         name: { $regex: body.searchFilter, $options: "i" }
                     }
                 },
-                {
-                    $addFields: {
-                        liveStatus: {
-                            $cond: {
-                                if: {
-                                    $or: [
-                                        {
-                                            $lte: [
-                                                "$startTime",
-                                                moment().toDate()
-                                            ]
-                                        }
-                                    ]
-                                },
-                                then: "Live",
-                                else: "Upcoming"
-                            }
-                        }
-                    }
-                },
+                // {
+                //     $addFields: {
+                //         liveStatus: {
+                //             $cond: {
+                //                 if: {
+                //                     $or: [
+                //                         {
+                //                             $lte: [
+                //                                 "$startTime",
+                //                                 moment().toDate()
+                //                             ]
+                //                         }
+                //                     ]
+                //                 },
+                //                 then: "Live",
+                //                 else: "Upcoming"
+                //             }
+                //         }
+                //     }
+                // },
                 {
                     $project: {
                         _id: 1,
                         name: 1,
                         description: 1,
-                        startTime: 1,
-                        meetingNumber: 1,
-                        username: 1,
-                        password: 1,
+                        meetings: 1,
                         status: {
                             $cond: [
                                 { $eq: ["$status", "enabled"] },
@@ -411,6 +417,15 @@ export default {
                 status: { $in: ["enabled", "disabled"] }
             }).exec()
         ])
+        console.log(data)
+        _.each(data, function (games) {
+            _.each(games.meetings, function (item) {
+                if (item.meetingStatus == "active") {
+                    games.meetingNumber = item.meetingNumber
+                    games.username = item.username
+                }
+            })
+        })
         const maxPage = Math.ceil(count / limit)
         return { data, count, maxPage }
     },
@@ -426,15 +441,11 @@ export default {
                     _id: 1,
                     name: 1,
                     description: 1,
-                    startTime: 1,
-                    meetingNumber: 1,
-                    password: 1,
                     status: {
                         $cond: [{ $eq: ["$status", "enabled"] }, true, false]
                     },
                     meetingStatus: 1,
-                    username: 1,
-                    liveStatus: 1
+                    meetings: 1
                 }
             }
         ]).exec()
