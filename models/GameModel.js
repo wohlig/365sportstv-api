@@ -86,7 +86,7 @@ export default {
                 .exec(),
             Game.countDocuments({
                 status: { $in: ["enabled"] },
-                startTime: { $lte: moment().toDate() }
+                // startTime: { $lte: moment().toDate() }
             }).exec()
         ])
         const maxPage = Math.ceil(count / limit)
@@ -97,7 +97,7 @@ export default {
         const skip = (pageNo - 1) * global.paginationLimit
         const limit = global.paginationLimit
         const [data, count] = await Promise.all([
-            ScheduleListModel.aggregate([
+            ScheduleList.aggregate([
                 {
                     $match: {
                         status: { $in: ["enabled"] }
@@ -163,7 +163,7 @@ export default {
                 .skip(skip)
                 .limit(limit)
                 .exec(),
-            Game.ScheduleListModel({
+            Game.ScheduleList({
                 status: { $in: ["enabled"] },
                 startTime: { $gte: moment().toDate() }
             }).exec()
