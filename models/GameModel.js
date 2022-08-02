@@ -163,7 +163,7 @@ export default {
                 .skip(skip)
                 .limit(limit)
                 .exec(),
-            Game.ScheduleList({
+            ScheduleList.countDocuments({
                 status: { $in: ["enabled"] },
                 startTime: { $gte: moment().toDate() }
             }).exec()
